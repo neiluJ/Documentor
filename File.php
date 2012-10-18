@@ -1,6 +1,6 @@
 <?php
 /**
- * http://github.com/neiluj/Documentor
+ * Documentor
  *
  * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
