@@ -1,0 +1,14 @@
+{
+    "name": "neiluj/Documentor",
+    "description": "PHP API Documentation generator",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Julien",
+            "email": "julien@nitronet.org"
+        }
+    ],
+    "require": {
+
+    }
+}
