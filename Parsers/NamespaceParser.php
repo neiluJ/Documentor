@@ -78,6 +78,8 @@ class NamespaceParser extends AbstractParser
                 } elseif (is_string($openNs) && $contents == ';') {
                     $namespace = trim($openNs);
                     $openNs = false;
+                    
+                    break; // only one namespace per file
                 }
             }
         
