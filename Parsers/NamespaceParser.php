@@ -1,6 +1,6 @@
 <?php
 /**
- * Fwk
+ * Documentor
  *
  * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
@@ -28,7 +28,7 @@
  * @author    Julien Ballestracci <julien@nitronet.org>
  * @copyright 2012-2013 Julien Ballestracci <julien@nitronet.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * @link      http://github.com/neiluj/Documentor
  */
 namespace Documentor\Parsers;
 
@@ -51,27 +51,29 @@ class NamespaceParser extends AbstractParser
         if(!isset($this->results)) {
             $tokens = $this->getTokens();
             $openNs = false;
-
+            $namespace = null;
+            $startLine = 0;
+            
             foreach ($tokens as $num => $token) {
                 if (!is_array($token)) {
                     $tok = $token;
                     $contents = $token;
-                    $line = 0;
                 } else {
                     $tok = $token[0];
                     $contents = $token[1];
                     $line = $token[2];
                 }
-
+                
                 if ($tok == \T_NAMESPACE) {
                     if (\is_string($openNs)) {
-                        throw new \Exception(
+                        throw new \Exception(sprintf(
                             "Parser error: double namespace (%s:%s).", 
                             $this->filePath, 
                             $line
-                        );
+                        ));
                     }
 
+                    $startLine = $line;
                     $openNs = "";
                 } elseif (is_string($openNs) && $contents != ';') {
                     $openNs .= $contents;
@@ -83,9 +85,39 @@ class NamespaceParser extends AbstractParser
                 }
             }
         
-            $this->results = array($openNs);
+            $this->results = array(
+                'namespace' => $namespace,
+                'startLine' => $startLine,
+                'endLine' => $line
+            );
         }
         
         return $this->results;
+    }
+    
+    /**
+     *
+     * @return string
+     */
+    public function getNamespace()
+    {
+        if(!isset($this->results)) {
+            $this->parse();
+        }
+        
+        return $this->results['namespace'];
+    }
+    
+    /**
+     *
+     * @return int
+     */
+    public function getLine()
+    {
+        if(!isset($this->results)) {
+            $this->parse();
+        }
+        
+        return $this->results['line'];
     }
 }

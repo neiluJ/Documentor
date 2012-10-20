@@ -70,6 +70,15 @@ class PhpFileParser extends AbstractParser
         ));
     }
     
+    public function parse()
+    {
+        if(!isset($this->results)) {
+            parent::parse();
+            
+            $this->namespace = $this->results['namespace']['namespace'];
+        }
+    }
+    
     /**
      * @return array
      */
@@ -77,6 +86,22 @@ class PhpFileParser extends AbstractParser
     {
         $this->parse();
         
-        return $this->results['namespace'][0];
+        return $this->results['namespace']['namespace'];
+    }
+    
+    /**
+     *
+     * @return string
+     */
+    public function hasNamespace()
+    {
+        return !empty($this->namespace);
+    }
+    
+    public function getResults()
+    {
+        $this->parse();
+        
+        return $this->results;
     }
 }

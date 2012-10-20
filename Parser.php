@@ -48,7 +48,7 @@ interface Parser
      */
     public function parse();
     
-    public function addParser(Parser $parser);
+    public function addParser($key, Parser $parser);
     
     public function addParsers(array $parsers);
     

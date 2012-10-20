@@ -1,6 +1,6 @@
 <?php
 /**
- * Fwk
+ * Documentor
  *
  * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
@@ -28,9 +28,11 @@
  * @author    Julien Ballestracci <julien@nitronet.org>
  * @copyright 2012-2013 Julien Ballestracci <julien@nitronet.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * @link      http://github.com/neiluj/Documentor
  */
 namespace Documentor\Parsers;
+
+use Documentor\AbstractParser;
 
 /**
  * @category   Parsers
@@ -40,7 +42,115 @@ namespace Documentor\Parsers;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://github.com/neiluj/Documentor
  */
-class AttributeParser
+class AttributeParser extends AbstractParser
 {
-    
+    public function parse()
+    {
+        if(!isset($this->results)) {
+            $tokens     = $this->getTokens();
+            $startLine  = 0;
+            $openAttr  = false;
+            $openFunction = false;
+            $openClass  = false;
+            $final      = false;
+            $abstract   = false;
+            $static     = false;
+            $visibility = null;
+            
+            $inClass    = 0;
+            $inFunction = 0;
+            
+            foreach ($tokens as $num => $token) {
+                if (!is_array($token)) {
+                    $tok = $token;
+                    $contents = $token;
+                } else {
+                    $tok = $token[0];
+                    $contents = $token[1];
+                    $line = $token[2];
+                }
+
+                if ($tok == \T_CLASS) {
+                    $openClass = "";
+                    continue;
+                } elseif ($tok == \T_FUNCTION) {
+                    if (\is_string($openFunction))
+                        continue; // support Closures
+
+                    $openFunction = "";
+                    continue;
+                } elseif ($tok == \T_ABSTRACT) {
+                    $abstract = true;
+                    continue;
+                } elseif ($tok == \T_FINAL) {
+                    $final = true;
+                    continue;
+                } elseif ($tok == \T_STATIC) {
+                    $static = true;
+                    continue;
+                } elseif ($tok == \T_PUBLIC || $tok == \T_PRIVATE || $tok == \T_PROTECTED) {
+                    $visibility = ($tok == \T_PUBLIC ? 'public' : ($tok == \T_PRIVATE ? 'private' : 'protected'));
+                    continue;
+                } elseif (($tok == \T_VAR || $tok == \T_VARIABLE) && $inClass > 0 && $inFunction == 0 && !is_string($openFunction)) {
+                    $openAttr = $contents;
+                    $startLine = $line;
+                    continue;
+                }
+                
+                if (is_string($openFunction) && ($contents == '{' || $contents == ';')) {
+                    $openFunction = false;
+                    $inFunction++;
+                } elseif (is_string($openClass) && ($contents == '{' || empty($contents) || $tok == \T_WHITESPACE)) { 
+                    $inClass++;
+                    $openClass = false;
+                } elseif (is_string($openAttr) && ($contents != ';' && $contents != ',')) {
+                    $openAttr .= $contents;
+                } elseif (is_string($openAttr)) {
+                    $variable = trim($openAttr);
+
+                    if (\strpos($variable, '=') !== false) {
+                        $value      = trim(\substr($variable, strpos($variable, '=') + 1, strlen($variable)));
+                        $variable   = trim(\substr($variable, 0, strpos($variable, '=')));
+                    } else {
+                        $value = false;
+                    }
+
+                    $this->results[ltrim($variable,'$')] = array(
+                       'value'      => $value,
+                       'final'      => $final,
+                       'static'     => $static,
+                       'visibility' => $visibility,
+                       'startLine'  => $startLine,
+                       'endLine'    => $line
+                    );
+                    
+                    if($contents == ';') {
+                        $openAttr   = false;
+                        $static     = false;
+                        $visibility = null;
+                        $final      = false;
+                        unset($variable, $value);
+                    } elseif($contents == ',') {
+                        $openAttr   = "";
+                        unset($variable);
+                    }
+                }
+                
+                if ($contents == '}') {
+                    if ($inFunction > 0)
+                        $inFunction--;
+                    elseif ($inClass > 0)
+                        $inClass--;
+                }
+                elseif ($contents == '{') {
+                    if ($inFunction > 0)
+                        $inFunction++;
+                    elseif ($inClass > 0)
+                        $inClass++;
+                }
+            }
+        }
+        
+        return $this->results;
+    }
 }

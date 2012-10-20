@@ -1,6 +1,6 @@
 <?php
 /**
- * Fwk
+ * Documentor
  *
  * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
@@ -28,9 +28,11 @@
  * @author    Julien Ballestracci <julien@nitronet.org>
  * @copyright 2012-2013 Julien Ballestracci <julien@nitronet.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * @link      http://github.com/neiluj/Documentor
  */
 namespace Documentor\Parsers;
+
+use Documentor\AbstractParser;
 
 /**
  * @category   Parsers
@@ -40,7 +42,77 @@ namespace Documentor\Parsers;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://github.com/neiluj/Documentor
  */
-class ConstantParser
+class ConstantParser extends AbstractParser
 {
-    
+    public function parse()
+    {
+        if(!isset($this->results)) {
+            $tokens     = $this->getTokens();
+            $openConst  = false;
+            $startLine  = 0;
+            $openClass  = false;
+            
+            foreach ($tokens as $num => $token) {
+                if (!is_array($token)) {
+                    $tok = $token;
+                    $contents = $token;
+                } else {
+                    $tok = $token[0];
+                    $contents = $token[1];
+                    $line = $token[2];
+                }
+
+                if ($contents == '}') {
+                    if($openClass == 1) {
+                        $openClass = false;
+                    } else {
+                        $openClass--;
+                    }
+                    continue;
+                } elseif ($contents == '{') {
+                    if($openClass === false) {
+                        $openClass = 1;
+                    } else {
+                        $openClass++;
+                    }
+                    continue;
+                }
+                
+                
+                if ($tok == \T_CLASS || $tok == \T_INTERFACE) {
+                    $openClass = 1;
+                    continue;
+                } elseif ($tok == \T_CONST && $openClass != false) {
+                    if (is_string($openConst)) {
+                        throw new \Exception(sprintf(
+                            "Parser error: double CONST (%s:%s).", 
+                            $this->filePath, 
+                            $line
+                        ));
+                    }
+                    $openConst = "";
+                    $startLine = $line;
+                    continue;
+                }
+                
+                if (is_string($openConst) && $contents != ';') {
+                    $openConst .= $contents;
+                } elseif (is_string($openConst) && $contents == ';') {
+                    $constant = trim($openConst);
+
+                    $cname = trim(\substr($constant, 0, strpos($constant, '=')));
+                    $value = trim(\substr($constant, strpos($constant, '=') + 1, strlen($constant)));
+
+                    $this->results[$cname] = array(
+                        'value'     => $value,
+                        'startLine' => $startLine,
+                        'endLine'   => $line
+                    );
+                    $openConst = false;
+                }
+            }
+        }
+        
+        return $this->results;
+    }
 }

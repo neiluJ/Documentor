@@ -57,17 +57,22 @@ abstract class AbstractParser implements Parser
     /**
      * @var array 
      */
-    protected $results = array();
+    protected $results;
     
     /**
      * @var array 
      */
-    protected $reflected    = array();
+    protected $reflected;
     
     /**
      * @var array
      */
-    protected $tokens       = array();
+    protected $tokens;
+    
+    public function __construct($filePath = null)
+    {
+        $this->filePath = $filePath;
+    }
     
     /**
      *
@@ -75,9 +80,9 @@ abstract class AbstractParser implements Parser
      * 
      * @return Parser 
      */
-    public function addParser(Parser $parser)
+    public function addParser($key, Parser $parser)
     {
-        $this->parsers[] = $parser;
+        $this->parsers[$key] = $parser;
         
         return $this;
     }
@@ -90,8 +95,8 @@ abstract class AbstractParser implements Parser
      */
     public function addParsers(array $parsers)
     {
-        foreach ($parsers as $parser) {
-            $this->addParser($parser);
+        foreach ($parsers as $key => $parser) {
+            $this->addParser($key, $parser);
         }
         
         return $this;

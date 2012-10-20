@@ -10,5 +10,11 @@
     ],
     "require": {
 
-    }
+    },
+    "autoload": {
+        "psr-0": {
+            "Documentor": ""
+        }
+    },
+    "target-dir": "Documentor"
 }

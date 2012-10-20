@@ -1,6 +1,6 @@
 <?php
 /**
- * Fwk
+ * Documentor
  *
  * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
@@ -28,9 +28,11 @@
  * @author    Julien Ballestracci <julien@nitronet.org>
  * @copyright 2012-2013 Julien Ballestracci <julien@nitronet.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * @link      http://github.com/neiluj/Documentor
  */
 namespace Documentor\Parsers;
+
+use Documentor\AbstractParser;
 
 /**
  * @category   Parsers
@@ -40,7 +42,81 @@ namespace Documentor\Parsers;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://github.com/neiluj/Documentor
  */
-class ImportsParser
+class ImportsParser extends AbstractParser
 {
-    
+    public function parse()
+    {
+        if(!isset($this->results)) {
+            $tokens     = $this->getTokens();
+            $openUse    = false;
+            $openAs     = false;
+            $uses       = array();
+            $startLine  = 0;
+            $inFunction = 0;
+            
+            foreach ($tokens as $num => $token) {
+                if (!is_array($token)) {
+                    $tok = $token;
+                    $contents = $token;
+                } else {
+                    $tok = $token[0];
+                    $contents = $token[1];
+                    $line = $token[2];
+                }
+
+                if ($contents == '}') {
+                        $inFunction--;
+                    continue;
+                } elseif ($contents == '{') {
+                        $inFunction++;
+                    continue;
+                }
+                
+               if ($tok == \T_USE && !$inFunction) {
+                    if (\is_string($openUse)) {
+                        throw new \Exception(sprintf(
+                            "Parser error: double USE (%s:%s).", 
+                            $this->filePath, 
+                            $line
+                        ));
+                    }
+                    
+                    $startLine = $line;
+                    $openUse = "";
+                    continue;
+                }
+
+                elseif ($tok == \T_AS && is_string($openUse)) {
+                    if (\is_string($openAs)) {
+                        throw new \Exception(sprintf(
+                            "Parser error: double AS (%s:%s).", 
+                            $this->filePath, 
+                            $line
+                        ));
+                    }
+                    
+                    $openAs = "";
+                    continue;
+                }
+                
+                elseif (is_string($openUse) && !is_string($openAs) && ($contents != ';' && $contents != ',')) {
+                    $openUse .= $contents;
+                } elseif (is_string($openUse) && is_string($openAs) && ($contents != ';' && $contents != ',')) {
+                    $openAs .= $contents;
+                } elseif (is_string($openUse) && (is_string($openAs) || $openAs == false) && ($contents == ';' || $contents == ',')) {
+                    $this->results[] = array(
+                        'import'    => trim($openUse),
+                        'alias'     => (!is_string($openAs) ? null : trim($openAs)),
+                        'startLine' => $startLine,
+                        'endLine'   => $line
+                    );
+                    
+                    $openUse = ($contents == ',' ? "" : false);
+                    $openAs = false;
+                }
+            }
+        }
+        
+        return $this->results;
+    }
 }
