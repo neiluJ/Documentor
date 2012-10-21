@@ -52,9 +52,9 @@ class InterfaceParser extends AbstractParser
         parent::__construct($filePath);
 
         $this->addParsers(array(
-            ':constants' => new ConstantParser(),
-            ':methods' => new MethodParser(),
-            ':attributes' => new AttributeParser()
+            ':constants'    => new ConstantParser(),
+            ':methods'      => new MethodParser(),
+            ':attributes'   => new AttributeParser()
         ));
     }
 
@@ -167,6 +167,10 @@ class InterfaceParser extends AbstractParser
         $end    = $infos['endLine'];
         
         $remove = array();
+        if(!isset($this->results[':'. $type]) || !is_array($this->results[':'. $type])) {
+            return;
+        }
+        
         foreach ($this->results[':'. $type] as $key => $data)
         {
             if ($data['startLine'] >= $end || $data['endLine'] <= $start) {

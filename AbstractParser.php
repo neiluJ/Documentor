@@ -157,4 +157,15 @@ abstract class AbstractParser implements Parser
         
         return $this->tokens;
     }
+    
+    /**
+     *
+     * @return array 
+     */
+    public function getResults()
+    {
+        $this->parse();
+        
+        return $this->results;
+    }
 }

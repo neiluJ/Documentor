@@ -56,7 +56,8 @@ class PhpFileParser extends AbstractParser
             'imports'       => new ImportsParser(),
             'functions'     => new FunctionParser(),
             'classes'       => new ClassParser(),
-            'interfaces'    => new InterfaceParser()
+            'interfaces'    => new InterfaceParser(),
+            'comments'      => new DocCommentParser()
         ));
     }
     
@@ -67,31 +68,5 @@ class PhpFileParser extends AbstractParser
             
             $this->namespace = $this->results['namespace']['namespace'];
         }
-    }
-    
-    /**
-     * @return array
-     */
-    public function getNamespace()
-    {
-        $this->parse();
-        
-        return $this->results['namespace']['namespace'];
-    }
-    
-    /**
-     *
-     * @return string
-     */
-    public function hasNamespace()
-    {
-        return !empty($this->namespace);
-    }
-    
-    public function getResults()
-    {
-        $this->parse();
-        
-        return $this->results;
     }
 }

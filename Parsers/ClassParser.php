@@ -52,9 +52,9 @@ class ClassParser extends AbstractParser
         parent::__construct($filePath);
 
         $this->addParsers(array(
-            ':constants' => new ConstantParser(),
-            ':methods' => new MethodParser(),
-            ':attributes' => new AttributeParser()
+            ':constants'    => new ConstantParser(),
+            ':methods'      => new MethodParser(),
+            ':attributes'   => new AttributeParser()
         ));
     }
 

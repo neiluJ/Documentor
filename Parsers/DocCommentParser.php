@@ -42,10 +42,8 @@ use Documentor\AbstractParser;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://github.com/neiluj/Documentor
  */
-class NamespaceParser extends AbstractParser
+class DocCommentParser extends AbstractParser
 {
-    const DEFAULT_NAMESPACE = '\\';
-    
     public function parse()
     {
         if(!isset($this->results)) {
@@ -64,32 +62,14 @@ class NamespaceParser extends AbstractParser
                     $line = $token[2];
                 }
                 
-                if ($tok == \T_NAMESPACE) {
-                    if (\is_string($openNs)) {
-                        throw new \Exception(sprintf(
-                            "Parser error: double namespace (%s:%s).", 
-                            $this->filePath, 
-                            $line
-                        ));
-                    }
-
-                    $startLine = $line;
-                    $openNs = "";
-                } elseif (is_string($openNs) && $contents != ';') {
-                    $openNs .= $contents;
-                } elseif (is_string($openNs) && $contents == ';') {
-                    $namespace = trim($openNs);
-                    $openNs = false;
-                    
-                    break; // only one namespace per file
+                if ($tok == \T_DOC_COMMENT) {
+                    $this->results[] = array(
+                        'text'      => $contents,
+                        'startLine' => $line,
+                        'endLine'   => $line+count(explode("\n", $contents))-1
+                    );
                 }
             }
-        
-            $this->results = array(
-                'namespace' => $namespace,
-                'startLine' => $startLine,
-                'endLine' => $line
-            );
         }
         
         return $this->results;
