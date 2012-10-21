@@ -115,7 +115,8 @@ class AttributeParser extends AbstractParser
                         $value = false;
                     }
 
-                    $this->results[ltrim($variable,'$')] = array(
+                    $this->results[] = array(
+                       'name'       => ltrim($variable,'$'),
                        'value'      => $value,
                        'final'      => $final,
                        'static'     => $static,

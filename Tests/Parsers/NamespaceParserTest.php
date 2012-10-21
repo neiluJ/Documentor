@@ -26,7 +26,7 @@ class NamespaceParserTest extends \PHPUnit_Framework_TestCase {
     public function testParse() {
         $res = $this->object->parse();
         $this->assertTrue(is_array($res));
-        $this->assertEquals(2, count($res));
+        $this->assertEquals(3, count($res));
     }
     
     /**

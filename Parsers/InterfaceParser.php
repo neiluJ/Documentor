@@ -44,5 +44,141 @@ use Documentor\AbstractParser;
  */
 class InterfaceParser extends AbstractParser
 {
+    /**
+     * @return void
+     */
+    public function __construct($filePath = null)
+    {
+        parent::__construct($filePath);
+
+        $this->addParsers(array(
+            ':constants' => new ConstantParser(),
+            ':methods' => new MethodParser(),
+            ':attributes' => new AttributeParser()
+        ));
+    }
+
+    public function parse()
+    {
+        if (!isset($this->results)) {
+            parent::parse();
+
+            $tokens = $this->getTokens();
+            $startLine = 0;
+            $openClass = false;
+            $abstract = false;
+            $name = null;
+            $implements = array();
+            
+            $inClass = 0;
+            $inFunction = 0;
+
+            foreach ($tokens as $num => $token) {
+                if (!is_array($token)) {
+                    $tok = $token;
+                    $contents = $token;
+                } else {
+                    $tok = $token[0];
+                    $contents = $token[1];
+                    $line = $token[2];
+                }
+
+                if ($tok == \T_INTERFACE) {
+                    if (\is_string($openClass)) {
+                        throw new \Exception(sprintf(
+                            "Parser error: double INTERFACE (%s:%s).", $this->filePath, $line
+                        ));
+                    }
+
+                    $openClass = "";
+                    $startLine = $line;
+                    continue;
+                } 
+                
+                if (is_string($openClass) && ($contents != '{' && !empty($contents))) {
+                    $openClass .= $contents;
+                } elseif (is_string($openClass) && ($contents == '{' || empty($contents) || $tok == \T_WHITESPACE)) {
+                    $openClass = trim($openClass);
+
+                    $className = "";
+                    $parentClass = null;
+                    $implements = array();
+                    $xxx = \explode(' ', $openClass);
+
+                    foreach ($xxx as $x => $item) {
+                        if ($x === 0) {
+                            $className = $item;
+                        } elseif ($item == 'extends') {
+                            $parentClass = $xxx[$x + 1];
+                        } 
+                    }
+
+                    $name = $className;
+                    $parentClass =  $parentClass;
+
+                    $openClass = false;
+                    $inClass++;
+                }
+                
+                if ($contents == '}') {
+                    if ($inClass == 1 && $openClass) {
+                        $openClass = false;
+                        $this->results[$name] = array(
+                            'parent' => $parentClass,
+                            'startLine' => $startLine,
+                            'endLine' => $line + 1
+                        );
+                        
+                        $this->appendData($name, 'constants');
+                        $this->appendData($name, 'attributes');
+                        $this->appendData($name, 'methods');
+                        
+                        $parentClass = null;
+                        $name = null;
+                    } else {
+                        $inClass--;
+                    }
+                } elseif ($contents == '{') {
+                    if ($inClass === false) {
+                        $inClass = 1;
+                    } else {
+                        $inClass++;
+                    }
+                }
+            }
+            
+            unset($this->results[':constants'], $this->results[':methods'],
+                  $this->results[':attributes']);
+        }
+
+        return $this->results;
+    }
     
+    protected function appendData($className, $type)
+    {
+        if(!isset($this->results[$className])) {
+            throw new \RuntimeException(sprintf(
+               "Inexistant class %s", $className
+            ));
+        }
+        
+        $infos  = $this->results[$className];
+        $start  = $infos['startLine'];
+        $end    = $infos['endLine'];
+        
+        $remove = array();
+        foreach ($this->results[':'. $type] as $key => $data)
+        {
+            if ($data['startLine'] >= $end || $data['endLine'] <= $start) {
+                continue;
+            }
+            
+            $this->results[$className][$type][$data['name']] = $data;
+            $remove[] = $key;
+        }
+        
+        foreach($remove as $key) {
+            unset($this->results[':'. $type][$key]);
+        }
+    }
 }

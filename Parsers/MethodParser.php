@@ -122,7 +122,8 @@ class MethodParser extends AbstractParser
                     }
                     
                     if(isset($startMethodLvl) && $startMethodLvl == $openClass) {
-                        $this->results[$name] = array(
+                        $this->results[] = array(
+                           'name'      => $name,
                            'signature'  => $signature,
                            'abstract'   => $abstract,
                            'final'      => $final,

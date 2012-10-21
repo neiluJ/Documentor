@@ -6,7 +6,7 @@ use \Exception
 as 
 BaseException;
 
-class TestClass
+abstract class TestClass extends stdClass implements Serializable, Testable
 {
     const TEST_CONSTANT = 1;
     const TEST_CONSTANTTWO = 2;
@@ -25,12 +25,16 @@ class TestClass
     public function testMethod(stdClass $class)
     {
         echo "test";
-        
-        echo "pw";
     }
     
     public static function factory()
     {
         return new self();
     }
+}
+
+
+class TestClassTwo
+{
+    const TEST = 2;
 }

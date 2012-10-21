@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Documentor
  *
@@ -30,6 +31,7 @@
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link      http://github.com/neiluj/Documentor
  */
+
 namespace Documentor\Parsers;
 
 use Documentor\AbstractParser;
@@ -47,13 +49,157 @@ class ClassParser extends AbstractParser
     /**
      * @return void
      */
-    public function __construct($filePath = null) {
+    public function __construct($filePath = null)
+    {
         parent::__construct($filePath);
-        
+
         $this->addParsers(array(
-            'constants'     => new ConstantParser(),
-            'methods'       => new MethodParser(),
-            'attributes'    => new AttributeParser()
+            ':constants' => new ConstantParser(),
+            ':methods' => new MethodParser(),
+            ':attributes' => new AttributeParser()
         ));
+    }
+
+    public function parse()
+    {
+        if (!isset($this->results)) {
+            parent::parse();
+
+            $tokens = $this->getTokens();
+            $startLine = 0;
+            $openClass = false;
+            $abstract = false;
+            $name = null;
+            $implements = array();
+            
+            $inClass = 0;
+            $inFunction = 0;
+
+            foreach ($tokens as $num => $token) {
+                if (!is_array($token)) {
+                    $tok = $token;
+                    $contents = $token;
+                } else {
+                    $tok = $token[0];
+                    $contents = $token[1];
+                    $line = $token[2];
+                }
+
+                if ($tok == \T_CLASS) {
+                    if (\is_string($openClass)) {
+                        throw new \Exception(sprintf(
+                                        "Parser error: double CLASS (%s:%s).", $this->filePath, $line
+                        ));
+                    }
+
+                    $openClass = "";
+                    $startLine = $line;
+                    continue;
+                } elseif ($tok == \T_ABSTRACT) {
+                    $abstract = true;
+                    continue;
+                } if (is_string($openClass) && ($contents != '{' && !empty($contents))) {
+                    $openClass .= $contents;
+                } elseif (is_string($openClass) && ($contents == '{' || empty($contents) || $tok == \T_WHITESPACE)) {
+                    $openClass = trim($openClass);
+
+                    $className = "";
+                    $parentClass = null;
+                    $implements = array();
+                    $hasImplements = false;
+                    $xxx = \explode(' ', $openClass);
+
+                    foreach ($xxx as $x => $item) {
+                        if ($x === 0) {
+                            $className = $item;
+                        } elseif ($item == 'extends') {
+                            $parentClass = $xxx[$x + 1];
+                        } elseif ($item == 'implements') {
+                            $hasImplements = true;
+                        }
+                    }
+
+                    if ($hasImplements) {
+                        $impl = trim(substr($openClass, strpos($openClass, ' implements ') + 11));
+                        if (strpos($impl, ',') !== false) {
+                            $x = explode(',', $impl);
+                            foreach ($x as $implemented) {
+                                $implements[] = trim($implemented);
+                            }
+                        } else
+                            $implements[] = $impl;
+                    }
+
+                    $name = $className;
+                    $parentClass =  $parentClass;
+
+                    $openClass = false;
+                    $inClass++;
+                }
+                
+                if ($contents == '}') {
+                    if ($openClass == 1) {
+                        $openClass = false;
+                        $this->results[$name] = array(
+                            'abstract' => $abstract,
+                            'implements' => $implements,
+                            'parent' => $parentClass,
+                            'startLine' => $startLine,
+                            'endLine' => $line + 1
+                        );
+                        
+                        $this->appendData($name, 'constants');
+                        $this->appendData($name, 'attributes');
+                        $this->appendData($name, 'methods');
+                        
+                        $implements = array();
+                        $abstract = false;
+                        $parentClass = null;
+                        $name = null;
+                    } else {
+                        $openClass--;
+                    }
+                } elseif ($contents == '{') {
+                    if ($openClass === false) {
+                        $openClass = 1;
+                    } else {
+                        $openClass++;
+                    }
+                }
+            }
+            
+            unset($this->results[':constants'], $this->results[':methods'],
+                  $this->results[':attributes']);
+        }
+
+        return $this->results;
+    }
+    
+    protected function appendData($className, $type)
+    {
+        if(!isset($this->results[$className])) {
+            throw new \RuntimeException(sprintf(
+               "Inexistant class %s", $className
+            ));
+        }
+        
+        $infos  = $this->results[$className];
+        $start  = $infos['startLine'];
+        $end    = $infos['endLine'];
+        
+        $remove = array();
+        foreach ($this->results[':'. $type] as $key => $data)
+        {
+            if ($data['startLine'] >= $end || $data['endLine'] <= $start) {
+                continue;
+            }
+            
+            $this->results[$className][$type][$data['name']] = $data;
+            $remove[] = $key;
+        }
+        
+        foreach($remove as $key) {
+            unset($this->results[':'. $type][$key]);
+        }
     }
 }

@@ -103,7 +103,8 @@ class ConstantParser extends AbstractParser
                     $cname = trim(\substr($constant, 0, strpos($constant, '=')));
                     $value = trim(\substr($constant, strpos($constant, '=') + 1, strlen($constant)));
 
-                    $this->results[$cname] = array(
+                    $this->results[] = array(
+                        'name'      => $cname,
                         'value'     => $value,
                         'startLine' => $startLine,
                         'endLine'   => $line
