@@ -77,7 +77,7 @@ class MethodParser extends AbstractParser
                     $openFunction = "";
                     $startLine = $line;
                     continue;
-                } elseif ($tok == \T_ABSTRACT) {
+                } elseif ($tok == \T_ABSTRACT && $openClass != false) {
                     $abstract = true;
                     continue;
                 } elseif ($tok == \T_FINAL) {
@@ -93,7 +93,7 @@ class MethodParser extends AbstractParser
                 
                 if (is_string($openFunction) && $contents != '{') {
                     $openFunction .= $contents;
-                } elseif (is_string($openFunction) && $contents == '{') {
+                } elseif (is_string($openFunction) && $contents == '{' && !isset($startMethodLvl)) {
                     $name = \substr(trim($openFunction), 0, \strpos(trim($openFunction), '('));
                     $name = trim($name);
 
@@ -115,11 +115,7 @@ class MethodParser extends AbstractParser
                 }
                 
                 if ($contents == '}') {
-                    if($openClass == 1) {
-                        $openClass = false;
-                    } else {
-                        $openClass--;
-                    }
+                    $openClass--;
                     
                     if(isset($startMethodLvl) && $startMethodLvl == $openClass) {
                         $this->results[] = array(
@@ -142,11 +138,7 @@ class MethodParser extends AbstractParser
                         unset($startMethodLvl);
                     }
                 } elseif ($contents == '{') {
-                    if($openClass === false) {
-                        $openClass = 1;
-                    } else {
-                        $openClass++;
-                    }
+                    $openClass++;
                 }
             }
         }

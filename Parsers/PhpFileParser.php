@@ -1,6 +1,6 @@
 <?php
 /**
- * Fwk
+ * Documentor
  *
  * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
@@ -28,7 +28,7 @@
  * @author    Julien Ballestracci <julien@nitronet.org>
  * @copyright 2012-2013 Julien Ballestracci <julien@nitronet.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * @link      http://github.com/neiluj/Documentor
  */
 namespace Documentor\Parsers;
 
@@ -44,16 +44,6 @@ use Documentor\AbstractParser;
  */
 class PhpFileParser extends AbstractParser
 {
-    protected $namespace    = null;
-    
-    protected $imports      = array();
-    
-    protected $classes      = array();
-    
-    protected $functions    = array();
-    
-    protected $interfaces   = array();
-    
     /**
      * @return void
      */

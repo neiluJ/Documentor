@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Documentor
  *
@@ -31,7 +30,6 @@
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link      http://github.com/neiluj/Documentor
  */
-
 namespace Documentor\Parsers;
 
 use Documentor\AbstractParser;
@@ -188,6 +186,10 @@ class ClassParser extends AbstractParser
         $end    = $infos['endLine'];
         
         $remove = array();
+        if(!isset($this->results[':'. $type]) || !is_array($this->results[':'. $type])) {
+            return;
+        }
+        
         foreach ($this->results[':'. $type] as $key => $data)
         {
             if ($data['startLine'] >= $end || $data['endLine'] <= $start) {

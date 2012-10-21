@@ -60,11 +60,6 @@ abstract class AbstractParser implements Parser
     protected $results;
     
     /**
-     * @var array 
-     */
-    protected $reflected;
-    
-    /**
      * @var array
      */
     protected $tokens;
