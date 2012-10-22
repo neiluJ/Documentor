@@ -44,5 +44,68 @@ use Documentor\AbstractParser;
  */
 class FunctionParser extends AbstractParser
 {
-    
+    public function parse()
+    {
+        if(!isset($this->results)) {
+            $tokens     = $this->getTokens();
+            $startLine  = 0;
+            $openClass  = 0;
+            $openFunction = false;
+            $name       = null;
+            $signature  = null;
+            foreach ($tokens as $num => $token) {
+                if (!is_array($token)) {
+                    $tok = $token;
+                    $contents = $token;
+                } else {
+                    $tok = $token[0];
+                    $contents = $token[1];
+                    $line = $token[2];
+                }
+
+                if ($tok == \T_CLASS || $tok == \T_INTERFACE) {
+                    $openClass++;
+                    continue;
+                } elseif ($tok == \T_FUNCTION && $openClass == 0) {
+                    if (\is_string($openFunction)) {
+                        continue; // support Closures
+                    }
+                    $openFunction = "";
+                    $startLine = $line;
+                    continue;
+                } 
+                
+                if (is_string($openFunction) && $contents != '{') {
+                    $openFunction .= $contents;
+                } elseif (is_string($openFunction) && $contents == '{' && !isset($startMethodLvl)) {
+                    $name = \substr(trim($openFunction), 0, \strpos(trim($openFunction), '('));
+                    $name = trim($name);
+
+                    $signature      = 'function ' . trim($openFunction);
+                    $startMethodLvl = $openClass;
+                }
+                
+                if ($contents == '}') {
+                    $openClass--;
+                    
+                    if(isset($startMethodLvl) && $startMethodLvl == $openClass) {
+                        $this->results[] = array(
+                           'name'      => $name,
+                           'signature'  => $signature,
+                           'startLine'  => $startLine,
+                           'endLine'    => $line+1
+                        );
+                        $openFunction   = false;
+                        $name           = null;
+                        $signature      = null;
+                        unset($startMethodLvl);
+                    }
+                } elseif ($contents == '{') {
+                    $openClass++;
+                }
+            }
+        }
+        
+        return $this->results;
+    }
 }

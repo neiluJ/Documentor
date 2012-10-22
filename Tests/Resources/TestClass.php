@@ -38,3 +38,11 @@ class TestClassTwo
 {
     const TEST = 2;
 }
+
+function testFunction() {
+    return "test";
+}
+
+function joeBarTeam() {
+    echo "yeah";
+}
