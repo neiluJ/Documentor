@@ -46,3 +46,10 @@ function testFunction() {
 function joeBarTeam() {
     echo "yeah";
 }
+
+interface TestInterface
+{
+    const JOE_BAR = 'test';
+    
+    public function test();
+}

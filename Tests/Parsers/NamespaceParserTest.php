@@ -28,10 +28,4 @@ class NamespaceParserTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue(is_array($res));
         $this->assertEquals(3, count($res));
     }
-    
-    /**
-     */
-    public function testGetNamespace() {
-        $this->assertEquals('Documentor', $this->object->getNamespace());
-    }
 } 

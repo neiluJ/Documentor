@@ -49,14 +49,16 @@ class MethodParser extends AbstractParser
         if(!isset($this->results)) {
             $tokens     = $this->getTokens();
             $startLine  = 0;
-            $openClass  = false;
+            $openClass  = 0;
             $openFunction = false;
             $final      = false;
             $abstract   = false;
             $static     = false;
             $visibility = null;
             $name       = null;
+            $endTok     = '{';
         
+            $level      = 0;
             foreach ($tokens as $num => $token) {
                 if (!is_array($token)) {
                     $tok = $token;
@@ -67,17 +69,23 @@ class MethodParser extends AbstractParser
                     $line = $token[2];
                 }
 
-                if ($tok == \T_CLASS || $tok == \T_INTERFACE) {
-                    $openClass = 1;
-                    continue;
-                } elseif ($tok == \T_FUNCTION && $openClass != false) {
-                    if (\is_string($openFunction)) {
-                        continue; // support Closures
-                    }
+                if ($contents == '{') {
+                    $level++;
+                } elseif ($contents == '}') {
+                    $level--;
+                }
+                
+                if ($tok == T_CLASS) {
+                    $endTok = '{';
+                } elseif ($tok == T_INTERFACE) {
+                    $endTok = ';';
+                }
+                
+                if ($tok == \T_FUNCTION && $level == 1) {
                     $openFunction = "";
                     $startLine = $line;
                     continue;
-                } elseif ($tok == \T_ABSTRACT && $openClass != false) {
+                } elseif ($tok == \T_ABSTRACT && $level == 1) {
                     $abstract = true;
                     continue;
                 } elseif ($tok == \T_FINAL) {
@@ -91,9 +99,9 @@ class MethodParser extends AbstractParser
                     continue;
                 }
                 
-                if (is_string($openFunction) && $contents != '{') {
+                if (is_string($openFunction) && $contents != '{' && $contents != ';') {
                     $openFunction .= $contents;
-                } elseif (is_string($openFunction) && $contents == '{' && !isset($startMethodLvl)) {
+                } elseif (is_string($openFunction) && ($contents == $endTok)) {
                     $name = \substr(trim($openFunction), 0, \strpos(trim($openFunction), '('));
                     $name = trim($name);
 
@@ -111,13 +119,11 @@ class MethodParser extends AbstractParser
                         $signature .= 'static ';
 
                     $signature     .= 'function ' . trim($openFunction);
-                    $startMethodLvl = $openClass;
+                    $startMethodLvl = true;
                 }
                 
                 if ($contents == '}') {
-                    $openClass--;
-                    
-                    if(isset($startMethodLvl) && $startMethodLvl == $openClass) {
+                    if(isset($startMethodLvl)) {
                         $this->results[] = array(
                            'name'      => $name,
                            'signature'  => $signature,
@@ -137,9 +143,7 @@ class MethodParser extends AbstractParser
                         $signature      = null;
                         unset($startMethodLvl);
                     }
-                } elseif ($contents == '{') {
-                    $openClass++;
-                }
+                } 
             }
         }
         

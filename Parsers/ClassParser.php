@@ -44,6 +44,8 @@ use Documentor\AbstractParser;
  */
 class ClassParser extends AbstractParser
 {
+    protected $triggerToken = \T_CLASS;
+    
     /**
      * @return void
      */
@@ -68,8 +70,7 @@ class ClassParser extends AbstractParser
             $openClass = false;
             $abstract = false;
             $name = null;
-            $implements = array();
-            
+            $impl = array();
             $inClass = 0;
             $inFunction = 0;
 
@@ -83,10 +84,10 @@ class ClassParser extends AbstractParser
                     $line = $token[2];
                 }
 
-                if ($tok == \T_CLASS) {
+                if ($tok == $this->triggerToken) {
                     if (\is_string($openClass)) {
                         throw new \Exception(sprintf(
-                                        "Parser error: double CLASS (%s:%s).", $this->filePath, $line
+                            "Parser error: double CLASS (%s:%s).", $this->filePath, $line
                         ));
                     }
 
@@ -96,11 +97,10 @@ class ClassParser extends AbstractParser
                 } elseif ($tok == \T_ABSTRACT) {
                     $abstract = true;
                     continue;
-                } if (is_string($openClass) && ($contents != '{' && !empty($contents))) {
+                } if (is_string($openClass) && $contents != '{') {
                     $openClass .= $contents;
-                } elseif (is_string($openClass) && ($contents == '{' || empty($contents) || $tok == \T_WHITESPACE)) {
+                } elseif (is_string($openClass) && $contents == '{') {
                     $openClass = trim($openClass);
-
                     $className = "";
                     $parentClass = null;
                     $implements = array();
@@ -116,34 +116,32 @@ class ClassParser extends AbstractParser
                             $hasImplements = true;
                         }
                     }
-
+                    
                     if ($hasImplements) {
-                        $impl = trim(substr($openClass, strpos($openClass, ' implements ') + 11));
-                        if (strpos($impl, ',') !== false) {
-                            $x = explode(',', $impl);
+                        $impltmp = trim(substr($openClass, strpos($openClass, ' implements ') + 11));
+                        if (strpos($impltmp, ',') !== false) {
+                            $x = explode(',', $impltmp);
                             foreach ($x as $implemented) {
-                                $implements[] = trim($implemented);
+                                $impl[] = trim($implemented);
                             }
-                        } else
-                            $implements[] = $impl;
+                        } else {
+                            $impl[] = $impltmp;
+                        }
                     }
 
-                    $name = $className;
-                    $parentClass =  $parentClass;
-
-                    $openClass = false;
-                    $inClass++;
+                    $implements = $impl;
+                    $name       = $className;
+                    $openClass  = false;
                 }
                 
                 if ($contents == '}') {
-                    if ($openClass == 1) {
-                        $openClass = false;
+                    if ($inClass == 1 && !empty($name)) {
                         $this->results[$name] = array(
-                            'abstract' => $abstract,
-                            'implements' => $implements,
-                            'parent' => $parentClass,
-                            'startLine' => $startLine,
-                            'endLine' => $line + 1
+                            'abstract'      => $abstract,
+                            'implements'    => $implements,
+                            'parent'        => $parentClass,
+                            'startLine'     => $startLine,
+                            'endLine'       => $line + 1
                         );
                         
                         $this->appendData($name, 'constants');
@@ -154,19 +152,17 @@ class ClassParser extends AbstractParser
                         $abstract = false;
                         $parentClass = null;
                         $name = null;
-                    } else {
-                        $openClass--;
-                    }
+                        $openClass = false;
+                        $impl = array();
+                    } 
+                    $inClass--;
                 } elseif ($contents == '{') {
-                    if ($openClass === false) {
-                        $openClass = 1;
-                    } else {
-                        $openClass++;
-                    }
+                    $inClass++;
                 }
             }
             
-            unset($this->results[':constants'], $this->results[':methods'],
+            unset($this->results[':constants'], 
+                  $this->results[':methods'],
                   $this->results[':attributes']);
         }
 
@@ -203,5 +199,15 @@ class ClassParser extends AbstractParser
         foreach($remove as $key) {
             unset($this->results[':'. $type][$key]);
         }
+    }
+    
+    public function getTriggerToken()
+    {
+        return $this->triggerToken;
+    }
+
+    public function setTriggerToken($triggerToken)
+    {
+        $this->triggerToken = $triggerToken;
     }
 }

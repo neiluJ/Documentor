@@ -49,10 +49,11 @@ class FunctionParser extends AbstractParser
         if(!isset($this->results)) {
             $tokens     = $this->getTokens();
             $startLine  = 0;
-            $openClass  = 0;
             $openFunction = false;
             $name       = null;
             $signature  = null;
+            
+            $level      = 0;
             foreach ($tokens as $num => $token) {
                 if (!is_array($token)) {
                     $tok = $token;
@@ -63,10 +64,13 @@ class FunctionParser extends AbstractParser
                     $line = $token[2];
                 }
 
-                if ($tok == \T_CLASS || $tok == \T_INTERFACE) {
-                    $openClass++;
-                    continue;
-                } elseif ($tok == \T_FUNCTION && $openClass == 0) {
+                if ($contents == '{') {
+                    $level++;
+                } elseif ($contents == '}') {
+                    $level--;
+                }
+                
+                if ($tok == \T_FUNCTION && $level == 0) {
                     if (\is_string($openFunction)) {
                         continue; // support Closures
                     }
@@ -77,32 +81,26 @@ class FunctionParser extends AbstractParser
                 
                 if (is_string($openFunction) && $contents != '{') {
                     $openFunction .= $contents;
-                } elseif (is_string($openFunction) && $contents == '{' && !isset($startMethodLvl)) {
+                } elseif (is_string($openFunction) && $contents == '{') {
                     $name = \substr(trim($openFunction), 0, \strpos(trim($openFunction), '('));
                     $name = trim($name);
 
-                    $signature      = 'function ' . trim($openFunction);
-                    $startMethodLvl = $openClass;
+                    $signature      = 'function '. trim($openFunction);
                 }
                 
                 if ($contents == '}') {
-                    $openClass--;
-                    
-                    if(isset($startMethodLvl) && $startMethodLvl == $openClass) {
+                    if($level == 0 && is_string($openFunction)) {
                         $this->results[] = array(
                            'name'      => $name,
                            'signature'  => $signature,
                            'startLine'  => $startLine,
                            'endLine'    => $line+1
                         );
-                        $openFunction   = false;
                         $name           = null;
                         $signature      = null;
-                        unset($startMethodLvl);
+                        $openFunction = false;
                     }
-                } elseif ($contents == '{') {
-                    $openClass++;
-                }
+                } 
             }
         }
         

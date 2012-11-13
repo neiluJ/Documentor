@@ -50,7 +50,6 @@ class ConstantParser extends AbstractParser
             $tokens     = $this->getTokens();
             $openConst  = false;
             $startLine  = 0;
-            $openClass  = false;
             
             foreach ($tokens as $num => $token) {
                 if (!is_array($token)) {
@@ -62,27 +61,7 @@ class ConstantParser extends AbstractParser
                     $line = $token[2];
                 }
 
-                if ($contents == '}') {
-                    if($openClass == 1) {
-                        $openClass = false;
-                    } else {
-                        $openClass--;
-                    }
-                    continue;
-                } elseif ($contents == '{') {
-                    if($openClass === false) {
-                        $openClass = 1;
-                    } else {
-                        $openClass++;
-                    }
-                    continue;
-                }
-                
-                
-                if ($tok == \T_CLASS || $tok == \T_INTERFACE) {
-                    $openClass = 1;
-                    continue;
-                } elseif ($tok == \T_CONST && $openClass != false) {
+                if ($tok == \T_CONST) {
                     if (is_string($openConst)) {
                         throw new \Exception(sprintf(
                             "Parser error: double CONST (%s:%s).", 
