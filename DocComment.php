@@ -72,7 +72,8 @@ class DocComment
      *
      * @return string
      */
-    public function getComment() {
+    public function getComment()
+    {
         if (!isset($this->comment)) {
             if (empty($this->block)) {
                 $this->comment = "";
@@ -99,7 +100,8 @@ class DocComment
         return $this->comment;
     }
 
-    protected static function fixHTML($text) {
+    protected static function fixHTML($text)
+    {
         $text = htmlspecialchars($text, \ENT_QUOTES, "utf-8");
         $text = preg_replace("/=/", "=\"\"", $text);
         $text = preg_replace("/&quot;/", "&quot;\"", $text);

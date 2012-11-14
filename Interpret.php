@@ -33,12 +33,20 @@
 namespace Documentor;
 
 use Documentor\Parsers\PhpFileParser;
-use Documentor\Reflection\ReflectionFunction;
-use Documentor\Reflection\ReflectionClass;
-use Documentor\Reflection\ReflectionMethod;
-use Documentor\Reflection\ReflectionProperty;
-use Documentor\Reflection\ReflectionConstant;
+use Documentor\Reflection\ReflectionFunction,
+    Documentor\Reflection\ReflectionClass,
+    Documentor\Reflection\ReflectionMethod,
+    Documentor\Reflection\ReflectionProperty,
+    Documentor\Reflection\ReflectionConstant;
 
+/**
+ * 
+ * @category Library
+ * @package  Documentor
+ * @author   Julien Ballestracci <julien@nitronet.org>
+ * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link     http://github.com/neiluj/Documentor
+ */
 class Interpret
 {
     /**
@@ -239,7 +247,6 @@ class Interpret
             }
         }
 
-
         // attr
         if (isset($infos['attributes']) && is_array($infos['attributes'])) {
             foreach ($infos['attributes'] as $attr) {
@@ -282,7 +289,6 @@ class Interpret
             }
         }
 
-
         return $class;
     }
 
@@ -304,5 +310,37 @@ class Interpret
     public function getParser()
     {
         return $this->parser;
+    }
+    
+    /**
+     *
+     * @return array 
+     */
+    public function getClasses()
+    {
+        $results = $this->parser->getResults();
+        $merge = array_merge($results['classes'], $results['interfaces']);
+        $final  = array();
+        foreach ($merge as $className => $infos) {
+            $final[$className] = $this->getClass($className);
+        }
+        
+        return $final;
+    }
+    
+    /**
+     *
+     * @return array 
+     */
+    public function getFunctions()
+    {
+        $results    = $this->parser->getResults();
+        $infos      = array();
+        $final      = array();
+        foreach ($results['functions'] as $func) {
+            $final[$func['name']] = $this->getFunction($func['name']);
+        }
+        
+        return $final;
     }
 }
