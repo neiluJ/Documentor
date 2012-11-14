@@ -36,7 +36,7 @@ use Documentor\AbstractParser;
 
 /**
  * @category   Parsers
- * @package    Documentor 
+ * @package    Documentor
  * @subpackage Parsers
  * @author     Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -50,7 +50,7 @@ class PhpFileParser extends AbstractParser
     public function __construct()
     {
         parent::__construct();
-        
+
         $this->addParsers(array(
             'namespace'     => new NamespaceParser(),
             'imports'       => new ImportsParser(),
@@ -60,13 +60,105 @@ class PhpFileParser extends AbstractParser
             'comments'      => new DocCommentParser()
         ));
     }
-    
+
     public function parse()
     {
-        if(!isset($this->results)) {
+        if (!isset($this->results)) {
             parent::parse();
-            
-            $this->namespace = $this->results['namespace']['namespace'];
+
+            $this->appendFunctionsComments();
+            $this->appendClassesComments('classes');
+            $this->appendClassesComments('interfaces');
         }
+    }
+
+    protected function appendFunctionsComments()
+    {
+        if(!isset($this->results) || !isset($this->results['functions'])
+           || !is_array($this->results['functions'])
+        ) {
+            return;
+        }
+
+        foreach ($this->results['functions'] as $idx => $func) {
+            $comment = $this->getDocCommentIdxForItemAtLine($func['startLine']);
+            if  ($comment !== false) {
+                $this->results['functions'][$idx]['comment'] = $this->results['comments'][$comment];
+                unset($this->results['comments'][$comment]);
+            } else {
+                $this->results['functions'][$idx]['comment'] = null;
+            }
+        }
+    }
+
+    protected function appendClassesComments($appendType = 'classes')
+    {
+        if(!isset($this->results) || !isset($this->results['classes'])
+           || !is_array($this->results['classes'])
+        ) {
+            return;
+        }
+
+        foreach ($this->results[$appendType] as $idx => $infos) {
+            $comment = $this->getDocCommentIdxForItemAtLine($infos['startLine']);
+            if  ($comment !== false) {
+                $this->results[$appendType][$idx]['comment'] = $this->results['comments'][$comment];
+                unset($this->results['comments'][$comment]);
+            }
+
+            if (isset($infos['attributes']) && is_array($infos['attributes'])) {
+                foreach ($infos['attributes'] as $attr => $attrInfos) {
+                    $comment = $this->getDocCommentIdxForItemAtLine($attrInfos['startLine']);
+                    if  ($comment !== false) {
+                        $this->results[$appendType][$idx]['attributes'][$attr]['comment'] = $this->results['comments'][$comment];
+                        unset($this->results['comments'][$comment]);
+                    }
+                }
+            }
+
+            if (isset($infos['constants']) && is_array($infos['constants'])) {
+                foreach ($infos['constants'] as $attr => $attrInfos) {
+                    $comment = $this->getDocCommentIdxForItemAtLine($attrInfos['startLine']);
+                    if  ($comment !== false) {
+                        $this->results[$appendType][$idx]['constants'][$attr]['comment'] = $this->results['comments'][$comment];
+                        unset($this->results['comments'][$comment]);
+                    }
+                }
+            }
+
+            if (isset($infos['methods']) && is_array($infos['methods'])) {
+                foreach ($infos['methods'] as $attr => $attrInfos) {
+                    $comment = $this->getDocCommentIdxForItemAtLine($attrInfos['startLine']);
+                    if  ($comment !== false) {
+                        $this->results['classes'][$idx]['methods'][$attr]['comment'] = $this->results['comments'][$comment];
+                        unset($this->results['comments'][$comment]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param integer $endLineNo
+     *
+     * @return integer
+     */
+    protected function getDocCommentIdxForItemAtLine($itemStartLine)
+    {
+        if(!isset($this->results) || !isset($this->results['comments'])
+           || !is_array($this->results['comments'])
+        ) {
+            return;
+        }
+
+        foreach ($this->results['comments'] as $idx => $comment)
+        {
+            if($comment['endLine'] == $itemStartLine-1) {
+                return $idx;
+            }
+        }
+
+        return false;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Fwk
+ * Documentor
  *
  * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
@@ -28,7 +28,7 @@
  * @author    Julien Ballestracci <julien@nitronet.org>
  * @copyright 2012-2013 Julien Ballestracci <julien@nitronet.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * @link      http://github.com/neiluj/Documentor
  */
 namespace Documentor;
 
@@ -39,37 +39,32 @@ namespace Documentor;
  * @package  Documentor
  * @author   Julien Ballestracci <julien@nitronet.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link     http://www.phpfwk.com
+ * @link     http://github.com/neiluj/Documentor
  */
-class DocComment {
-
+class DocComment
+{
     protected $block;
+
+    protected $startLine;
+
+    protected $endLine;
 
     protected $comment;
 
-    protected $tags;
-
-    /**
-     * List of known tag names and their representative class
-     * 
-     * @var array
-     */
-    public static $tagClasses = array(
-        'author'    => 'Documentor\DocComment\AuthorTag',
-        'param'     => 'Documentor\DocComment\ParamTag',
-        'return'    => 'Documentor\DocComment\ReturnTag',
-    );
-    
     /**
      * Constructor
      *
      * Initialize a comment-block
      *
      * @param string $comment
+     *
      * @return void
      */
-    public function __construct($comment) {
-        $this->block = $comment;
+    public function __construct($comment, $startLine = 0, $endLine = 0)
+    {
+        $this->block        = $comment;
+        $this->startLine    = $startLine;
+        $this->endLine      = $endLine;
     }
 
     /**
@@ -78,36 +73,33 @@ class DocComment {
      * @return string
      */
     public function getComment() {
+        if (!isset($this->comment)) {
+            if (empty($this->block)) {
+                $this->comment = "";
+                return "";
+            }
 
-        if(!isset($this->comment)) {
-            if(empty($this->block))
-                   $this->comment = "";
-
-            else {
-                $comment = "";
-                $lines = \explode("\n", $this->block);
-                foreach((array)$lines as $line) {
-                    $line = trim($line);
-                    if($line == '/**' || $line == '*/')
-                        continue;
-
-                    $line = ltrim($line, '* ');
-                    if(\strpos($line, '@') !== 0)
-                        $comment .= (empty($line) ? "\n" : $line ."\n");
-
-                    else {
-                        $this->parseTagLine($line);
-                    }
+            $comment = "";
+            $lines = \explode("\n", $this->block);
+            foreach((array)$lines as $line) {
+                $line = trim($line);
+                if ($line == '/**' || $line == '*/') {
+                    continue;
                 }
 
-                $this->comment = $comment;
+                $line = ltrim($line, '* ');
+                if (\strpos($line, '@') !== 0) {
+                    $comment .= (empty($line) ? "\n" : $line ."\n");
+                }
             }
+
+            $this->comment = $comment;
         }
 
-        return $this->fixHTML($this->comment);
+        return $this->comment;
     }
 
-    protected function fixHTML($text) {
+    protected static function fixHTML($text) {
         $text = htmlspecialchars($text, \ENT_QUOTES, "utf-8");
         $text = preg_replace("/=/", "=\"\"", $text);
         $text = preg_replace("/&quot;/", "&quot;\"", $text);
@@ -121,32 +113,25 @@ class DocComment {
     }
 
     /**
-     * Parse an attribute line like "@param ..."
-     * 
-     * @param string $line
-     * @return void
-     */
-    protected function parseTagLine($line) {
-
-    }
-
-    /**
-     * Tells if this docBlock has tag $attributeName
-     * 
-     * @param string $tagName
-     * @return boolean
-     */
-    public function hasTag($tagName) {
-        
-    }
-
-    /**
      * Returns the raw comment block
-     * 
+     *
      * @return string
      */
-    public function __toString() {
-
+    public function __toString()
+    {
         return ($this->block === null ? "" : $this->block);
+    }
+
+    /**
+     *
+     * @param string $block
+     * @param integer $startLine
+     * @param integer $endLine
+     *
+     * @return DocComment
+     */
+    public static function factory($block, $startLine = 0, $endLine = 0)
+    {
+        return new self($block, $startLine, $endLine);
     }
 }
