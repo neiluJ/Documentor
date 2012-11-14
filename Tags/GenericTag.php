@@ -25,13 +25,15 @@
  *
  * @category   Documentation
  * @package    Documentor
- * @subpackage DocComment
+ * @subpackage Tags
  * @author     Julien Ballestracci <julien@nitronet.org>
  * @copyright  2012-2013 Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://github.com/neiluj/Documentor
  */
-namespace Documentor\DocComment;
+namespace Documentor\Tags;
+
+use Documentor\Tag;
 
 /**
  * This class represent a generic documentation tag
@@ -39,15 +41,16 @@ namespace Documentor\DocComment;
  *
  * It can also be herited by other tag classes
  *
- * @category   Documentation
+ * @category   Library
  * @package    Documentor
- * @subpackage DocComment
+ * @subpackage Tags
  * @author     Julien Ballestracci <julien@nitronet.org>
  * @copyright  2012-2013 Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://github.com/neiluj/Documentor
  */
-class GenericTag {
+class GenericTag implements Tag
+{
     /**
      * Tag name
      *
@@ -59,18 +62,20 @@ class GenericTag {
      *
      * @var string
      */
-    protected $line;
+    protected $text;
 
     /**
      * Create a new generic tag
      * 
      * @param string $name  Tag name
-     * @param string $line  (optional) Line of content
+     * @param string $line  Content
+     * 
      * @return void
      */
-    public function __construct($name, $line = null) {
+    public function __construct($name, $text = null)
+    {
         $this->name = $name;
-        $this->line = $line;
+        $this->text = $text;
     }
 
     /**
@@ -78,21 +83,22 @@ class GenericTag {
      *
      * @return string
      */
-    public function getName() {
-        
+    public function getName()
+    {
         return $this->name;
     }
 
     /**
-     * Returns this tag content line
      *
-     * @return string
+     * @param string $tagName 
+     * 
+     * @return void
      */
-    public function getLine() {
-
-        return $this->line;
+    public function setName($tagName)
+    {
+        $this->name = $tagName;
     }
-
+    
     /**
      * Return the complete comment line of this tag
      *
@@ -100,6 +106,26 @@ class GenericTag {
      */
     public function __toString() {
 
-        return $this->name . (empty($this->line) ? null : ' '. $this->line);
+        return '@'. $this->name .' '. $this->text;
+    }
+    
+    /**
+     *
+     * @return string
+     */
+    public function getText()
+    {
+        return $this->text;
+    }
+
+    /**
+     *
+     * @param string $text 
+     * 
+     * @return void
+     */
+    public function setText($text)
+    {
+        $this->text = $text;
     }
 }

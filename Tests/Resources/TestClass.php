@@ -64,6 +64,9 @@ class TestClassTwo
 /**
  * This is a function comment
  *
+ * @param string $yoMan Coucou comment va
+ *                      ca roule chez toi?
+ * @param mixed $cdoln HelloKitty
  * @return string
  */
 function testFunction(YouPi $paramOne = null, array & $joe = array()) {

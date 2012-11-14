@@ -33,98 +33,23 @@
 namespace Documentor;
 
 /**
+ * DocTag Interface
  *
- * @category Library
+ * @category Interfaces
  * @package  Documentor
  * @author   Julien Ballestracci <julien@nitronet.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link     http://github.com/neiluj/Documentor
  */
-abstract class AbstractReflector implements Reflector
+interface Tag
 {
-    protected $startLine;
-
-    protected $endLine;
-
-    protected $name;
-
-    protected $fileName;
-
-    protected $namespaceName;
-
-    protected $docComment;
-
-    public function getStartLine()
-    {
-        return $this->startLine;
-    }
-
-    public function setStartLine($startLine)
-    {
-        $this->startLine = $startLine;
-    }
-
-    public function getEndLine()
-    {
-        return $this->endLine;
-    }
-
-    public function setEndLine($endLine)
-    {
-        $this->endLine = $endLine;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    public function getFileName()
-    {
-        return $this->fileName;
-    }
-
-    public function setFileName($fileName)
-    {
-        $this->fileName = $fileName;
-    }
-
-    public function getNamespaceName()
-    {
-        return $this->namespaceName;
-    }
-
-    public function setNamespaceName($namespaceName)
-    {
-        $this->namespaceName = $namespaceName;
-    }
-
-    public function getShortName()
-    {
-        return ltrim(str_replace($this->namespaceName, '', $this->name), '\\');
-    }
-
-    public function inNamespace()
-    {
-        return ($this->namespaceName != "\\");
-    }
-
-    /**
-     *
-     * @return DocComment 
-     */
-    public function getDocComment()
-    {
-        return $this->docComment;
-    }
-
-    public function setDocComment(DocComment $comment)
-    {
-        $this->docComment = $comment;
-    }
+    public function getName();
+    
+    public function setName($tagName);
+    
+    public function getText();
+    
+    public function setText($text);
+    
+    public function __toString();
 }

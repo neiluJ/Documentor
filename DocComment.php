@@ -43,6 +43,8 @@ namespace Documentor;
  */
 class DocComment
 {
+    const GENERIC_TAG_KEY = '_generic';
+    
     protected $block;
 
     protected $startLine;
@@ -50,6 +52,17 @@ class DocComment
     protected $endLine;
 
     protected $comment;
+    
+    /**
+     * @var array
+     */
+    public static $tagsClasses = array(
+        'param'     => 'Documentor\Tags\ParameterTag',
+        // 'author'    => 'Documentor\Tags\AuthorTag',
+        // 'license'   => 'Documentor\Tags\LicenseTag',
+        // 'see'       => 'Documentor\Tags\SeeTag',
+        self::GENERIC_TAG_KEY  => 'Documentor\Tags\GenericTag'
+    );
 
     /**
      * Constructor
@@ -82,7 +95,7 @@ class DocComment
 
             $comment = "";
             $lines = \explode("\n", $this->block);
-            foreach((array)$lines as $line) {
+            foreach ($lines as $line) {
                 $line = trim($line);
                 if ($line == '/**' || $line == '*/') {
                     continue;
@@ -100,6 +113,13 @@ class DocComment
         return $this->comment;
     }
 
+    /**
+     *
+     * @param string $text
+     * 
+     * @static
+     * @return string 
+     */
     protected static function fixHTML($text)
     {
         $text = htmlspecialchars($text, \ENT_QUOTES, "utf-8");
@@ -130,10 +150,120 @@ class DocComment
      * @param integer $startLine
      * @param integer $endLine
      *
+     * @static
      * @return DocComment
      */
     public static function factory($block, $startLine = 0, $endLine = 0)
     {
         return new self($block, $startLine, $endLine);
+    }
+    
+    /**
+     *
+     * @param string $name 
+     * 
+     * @return array
+     */
+    public function getTags($name)
+    {
+        $tmp    = \explode("\n", $this->block);
+        $start  = false;
+        $lines  = array();
+        foreach ($tmp as $line) {
+            $line = trim($line);
+            if(strpos($line, '* ') === 0) {
+                $line = substr($line, 2);
+            }
+            
+            if ($line == '/**' || $line == '*/' || empty($line) 
+                || $line == '*'
+            ) {
+                continue;
+            }
+
+            if (strpos($line, '@') === 0 && !$start) {
+                $start = true;
+                $lines[] = $line;
+            } elseif ($start) {
+                $lines[] = $line;
+            }
+        }
+        
+        $search = '@'. $name;
+        $text   = false;
+        $final  = array();
+        $tagClassName = self::getTagClassName($name);
+        foreach ($lines as $idx => $line) {
+            if (stripos($line, $search, 0) === 0) {
+                if(is_string($text)) {
+                    $text = str_replace(array("\n", "\t"), array(" ", " "), $text);
+                    $final[] = new $tagClassName($name, $text);
+                }
+                
+                $text = trim(substr($line, strlen($name)+2));
+                continue;
+            } 
+            
+            if (!is_string($text)) {
+                continue;
+            } elseif (is_string($text) && (strpos($line, '@', 0) === 0
+                    || !isset($lines[$idx+1]))) {
+                $text = str_replace(array("\n", "\t"), array(" ", " "), $text);
+                $final[] = new $tagClassName($name, $text);
+                $text = false;
+                continue;
+            }
+            
+            $text .= ' '. trim($line);
+        }
+        
+        if (is_string($text)) {
+            $text = str_replace(array("\n", "\t"), array(" ", " "), $text);
+            $final[] = new $tagClassName($name, $text);
+        }
+        
+        return $final;
+    }
+    
+    /**
+     *
+     * @param string $tagName 
+     * 
+     * @return Tag
+     */
+    public function getFirstTag($tagName)
+    {
+        $results = $this->getTags($tagName);
+        
+        return (isset($results[0]) ? $results[0] : null);
+    }
+    
+    /**
+     *
+     * @param string $tagName 
+     * 
+     * @static
+     * @return string
+     */
+    public static function getTagClassName($tagName)
+    {
+        if (!isset(self::$tagsClasses[$tagName])) {
+            $tagName = self::GENERIC_TAG_KEY;
+        }
+        
+        return self::$tagsClasses[$tagName];
+    }
+    
+    /**
+     *
+     * @param string $tagName
+     * @param string $className 
+     * 
+     * @static
+     * @return void
+     */
+    public static function setTagClassName($tagName, $className)
+    {
+        self::$tagsClasses[$tagName] = $className;
     }
 }
