@@ -12,8 +12,11 @@ BaseException;
 /**
  * We love class comments
  */
-abstract class TestClass extends stdClass implements Serializable, Testable
+class TestClass extends stdClass implements Serializable, Testable
 {
+    /**
+     * Constant comment
+     */
     const TEST_CONSTANT = 1;
     const TEST_CONSTANTTWO = 2;
 

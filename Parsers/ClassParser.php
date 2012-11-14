@@ -36,7 +36,7 @@ use Documentor\AbstractParser;
 
 /**
  * @category   Parsers
- * @package    Documentor 
+ * @package    Documentor
  * @subpackage Parsers
  * @author     Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -45,7 +45,7 @@ use Documentor\AbstractParser;
 class ClassParser extends AbstractParser
 {
     protected $triggerToken = \T_CLASS;
-    
+
     /**
      * @return void
      */
@@ -116,7 +116,7 @@ class ClassParser extends AbstractParser
                             $hasImplements = true;
                         }
                     }
-                    
+
                     if ($hasImplements) {
                         $impltmp = trim(substr($openClass, strpos($openClass, ' implements ') + 11));
                         if (strpos($impltmp, ',') !== false) {
@@ -133,42 +133,43 @@ class ClassParser extends AbstractParser
                     $name       = $className;
                     $openClass  = false;
                 }
-                
+
                 if ($contents == '}') {
                     if ($inClass == 1 && !empty($name)) {
                         $this->results[$name] = array(
+                            'name'          => $name,
                             'abstract'      => $abstract,
                             'implements'    => $implements,
                             'parent'        => $parentClass,
                             'startLine'     => $startLine,
                             'endLine'       => $line + 1
                         );
-                        
+
                         $this->appendData($name, 'constants');
                         $this->appendData($name, 'attributes');
                         $this->appendData($name, 'methods');
-                        
+
                         $implements = array();
                         $abstract = false;
                         $parentClass = null;
                         $name = null;
                         $openClass = false;
                         $impl = array();
-                    } 
+                    }
                     $inClass--;
                 } elseif ($contents == '{') {
                     $inClass++;
                 }
             }
-            
-            unset($this->results[':constants'], 
+
+            unset($this->results[':constants'],
                   $this->results[':methods'],
                   $this->results[':attributes']);
         }
 
         return $this->results;
     }
-    
+
     protected function appendData($className, $type)
     {
         if(!isset($this->results[$className])) {
@@ -176,31 +177,31 @@ class ClassParser extends AbstractParser
                "Inexistant class %s", $className
             ));
         }
-        
+
         $infos  = $this->results[$className];
         $start  = $infos['startLine'];
         $end    = $infos['endLine'];
-        
+
         $remove = array();
         if(!isset($this->results[':'. $type]) || !is_array($this->results[':'. $type])) {
             return;
         }
-        
+
         foreach ($this->results[':'. $type] as $key => $data)
         {
             if ($data['startLine'] >= $end || $data['endLine'] <= $start) {
                 continue;
             }
-            
+
             $this->results[$className][$type][$data['name']] = $data;
             $remove[] = $key;
         }
-        
+
         foreach($remove as $key) {
             unset($this->results[':'. $type][$key]);
         }
     }
-    
+
     public function getTriggerToken()
     {
         return $this->triggerToken;

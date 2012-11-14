@@ -34,7 +34,9 @@ namespace Documentor;
 
 use Documentor\Parsers\PhpFileParser;
 use Documentor\Reflection\ReflectionFunction;
-
+use Documentor\Reflection\ReflectionClass;
+use Documentor\Reflection\ReflectionMethod;
+use Documentor\Reflection\ReflectionProperty;
 
 class Interpret
 {
@@ -130,6 +132,7 @@ class Interpret
         $func->setFileName($this->parser->getFilePath());
         $func->setName($this->getItemFullName($infos['name']));
         $func->setSignatureString($infos['signature']);
+        $func->setNamespaceName($this->getNamespace());
 
         if (isset($infos['comment']) && is_array($infos['comment'])) {
             $func->setDocComment(
@@ -145,7 +148,116 @@ class Interpret
     }
 
     /**
-     * 
+     *
+     * @param string $functionName
+     *
+     * @return boolean
+     */
+    public function hasClass($className)
+    {
+        $results = $this->parser->getResults();
+
+        return isset($results['classes'][$className]);
+    }
+
+    /**
+     *
+     * @param string $className
+     *
+     * @return ReflectionClass
+     */
+    public function getClass($className)
+    {
+        if (!$this->hasClass($className)) {
+            throw new Exception(sprintf("Unknown class '%s'", $className));
+        }
+
+        $results    = $this->parser->getResults();
+        $infos      = $results['classes'][$className];
+
+        $class = new ReflectionClass();
+        $class->setStartLine($infos['startLine']);
+        $class->setEndLine($infos['endLine']);
+        $class->setFileName($this->parser->getFilePath());
+        $class->setName($this->getItemFullName($infos['name']));
+        $class->setNamespaceName($this->getNamespace());
+
+        if (isset($infos['parent']) && !empty($infos['parent'])) {
+            $class->setParentClass($infos['parent']);
+        }
+
+        $class->setImplements($infos['implements']);
+        $class->setAbstract($infos['abstract']);
+
+        if (isset($infos['comment']) && is_array($infos['comment'])) {
+            $class->setDocComment(
+                DocComment::factory(
+                    $infos['comment']['text'],
+                    $infos['comment']['startLine'],
+                    $infos['comment']['endLine']
+                )
+            );
+        }
+
+        // methods
+        if (isset($infos['methods']) && is_array($infos['methods'])) {
+            foreach ($infos['methods'] as $methodInfos) {
+                $method = new ReflectionMethod();
+                $method->setAbstract($methodInfos['abstract']);
+                $method->setFinal($methodInfos['final']);
+                $method->setStatic($methodInfos['static']);
+                $method->setStartLine($methodInfos['startLine']);
+                $method->setEndLine($methodInfos['endLine']);
+                $method->setFileName($this->parser->getFilePath());
+                $method->setSignatureString($methodInfos['signature']);
+                $method->setVisibility($methodInfos['visibility']);
+                $method->setName($methodInfos['name']);
+
+                 if (isset($methodInfos['comment']) && is_array($methodInfos['comment'])) {
+                    $method->setDocComment(
+                        DocComment::factory(
+                            $methodInfos['comment']['text'],
+                            $methodInfos['comment']['startLine'],
+                            $methodInfos['comment']['endLine']
+                        )
+                    );
+                }
+                $method->setDeclaringClass($class);
+                $method->setNamespaceName($this->getNamespace());
+
+                $class->addMethod($method);
+            }
+        }
+
+
+        // attr
+        if (isset($infos['attributes']) && is_array($infos['attributes'])) {
+            foreach ($infos['attributes'] as $attr) {
+                $attribute = new ReflectionProperty($attr['name'], $attr['visibility'], $attr['value'],  $class);
+                $attribute->setStatic($attr['static']);
+                $attribute->setStartLine($attr['startLine']);
+                $attribute->setEndLine($attr['endLine']);
+
+                if (isset($attr['comment']) && is_array($attr['comment'])) {
+                    $attribute->setDocComment(
+                        DocComment::factory(
+                            $attr['comment']['text'],
+                            $attr['comment']['startLine'],
+                            $attr['comment']['endLine']
+                        )
+                    );
+                }
+
+                $class->addProperty($attribute);
+            }
+        }
+
+
+        return $class;
+    }
+
+    /**
+     *
      * @param string $name
      *
      * @return string

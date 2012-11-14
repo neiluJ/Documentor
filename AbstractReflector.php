@@ -52,8 +52,6 @@ abstract class AbstractReflector
 
     protected $namespaceName;
 
-    protected $shortName;
-
     protected $docComment;
 
     public function getStartLine()
@@ -108,12 +106,7 @@ abstract class AbstractReflector
 
     public function getShortName()
     {
-        return $this->shortName;
-    }
-
-    public function setShortName($shortName)
-    {
-        $this->shortName = $shortName;
+        return ltrim(str_replace($this->namespaceName, '', $this->name), '\\');
     }
 
     public function inNamespace()
@@ -123,11 +116,11 @@ abstract class AbstractReflector
 
     public function getDocComment()
     {
-        return $this->comment;
+        return $this->docComment;
     }
 
     public function setDocComment(DocComment $comment)
     {
-        $this->comment = $comment;
+        $this->docComment = $comment;
     }
 }
