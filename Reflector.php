@@ -33,7 +33,7 @@
 namespace Documentor;
 
 /**
- * Passive Reflector Interface
+ * Reflector Interface
  *
  * @category Interfaces
  * @package  Documentor
@@ -41,6 +41,6 @@ namespace Documentor;
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link     http://github.com/neiluj/Documentor
  */
-interface PassiveReflector
+interface Reflector
 {
 }

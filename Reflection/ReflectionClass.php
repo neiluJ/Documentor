@@ -57,6 +57,8 @@ class ReflectionClass extends AbstractReflector
     protected $implements = array();
 
     protected $parentClass;
+    
+    protected $interface = false;
 
     /**
      *
@@ -133,7 +135,7 @@ class ReflectionClass extends AbstractReflector
      *
      * @param string $methodName
      *
-     * @return ReflectionClass
+     * @return ReflectionProperty
      * @throws \Documentor\Exception
      */
     public function getProperty($propName)
@@ -159,6 +161,57 @@ class ReflectionClass extends AbstractReflector
     {
         return isset($this->properties[$propName]);
     }
+    
+    /**
+     *
+     * @param \Documentor\Reflection\ReflectionMethod $method
+     *
+     * @return void
+     */
+    public function addConstant(ReflectionConstant $constant)
+    {
+        $this->constants[$constant->getName()] = $constant;
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getConstants()
+    {
+        return $this->constants;
+    }
+
+    /**
+     *
+     * @param string $methodName
+     *
+     * @return ReflectionConstant
+     * @throws \Documentor\Exception
+     */
+    public function getConstant($constantName)
+    {
+        if (!isset($this->constants[$propName])) {
+            throw new \Documentor\Exception(
+                "Unknown constant '%s' in class '%s'",
+                $constantName,
+                $this->name
+            );
+        }
+
+        return $this->constants[$constantName];
+    }
+
+    /**
+     *
+     * @param string $propName
+     *
+     * @return boolean
+     */
+    public function hasConstant($constantName)
+    {
+        return isset($this->constants[$constantName]);
+    }
 
     public function isAbstract()
     {
@@ -180,7 +233,7 @@ class ReflectionClass extends AbstractReflector
         $this->final = $final;
     }
 
-    public function getImplements()
+    public function getInterfacesNames()
     {
         return $this->implements;
     }
@@ -198,5 +251,133 @@ class ReflectionClass extends AbstractReflector
     public function setParentClass($parentClass)
     {
         $this->parentClass = $parentClass;
+    }
+    
+    public function isInterface()
+    {
+        return $this->interface;
+    }
+
+    /**
+     *
+     * @param boolean $interface 
+     * 
+     * @return void
+     */
+    public function setInterface($interface)
+    {
+        $this->interface = (bool)$interface;
+    }
+    
+    /**
+     *
+     * @return boolean 
+     */
+    public function isInstantiable()
+    {
+        if (!$this->isInterface() && !$this->isAbstract()) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     *
+     * @return array 
+     */
+    public function getStaticProperties()
+    {
+        $final = array();
+        foreach ($this->getProperties() as $prop) {
+            $final[] = $prop;
+        }
+        
+        return $final;
+    }
+    
+    /**
+     * @return boolean
+     */
+    public function implementsInterface($interface)
+    {
+        /*
+         * @todo check parents
+         */
+        return in_array($interface, $this->implements);
+    }
+    
+    /**
+     * @return boolean
+     */
+    public function isSubclassOf($parentClass)
+    {
+        /*
+         * @todo check parents
+         */
+        return $this->parentClass == $parentClass;
+    }
+    
+    /**
+     *
+     * @return boolean 
+     */
+    public function isCloneable()
+    {
+        if ($this->hasMethod('__clone')) {
+            return $this->getMethod('__clone')->isPublic();
+        }
+        
+        return (!$this->isInterface() && !$this->isAbstract());
+    }
+    
+    /**
+     * 
+     * @return ReflectionMethod
+     */
+    public function getConstructor()
+    {
+        if ($this->hasMethod('__construct')) {
+            return $this->getMethod('__construct');
+        } elseif ($this->hasMethod($this->getShortName())) {
+            return $this->getMethod($this->getShortName());
+        }
+        
+        return null;
+    }
+    
+    /**
+     *
+     * @param mixed $object 
+     * 
+     * @return boolean
+     */
+    public function isInstance($object)
+    {
+        if (!is_object($object)) {
+            throw new \IllegalArgumentException();
+        }
+        
+        if (!class_exists($this->name)) {
+            return false;
+        }
+        
+        return $object instanceof $this->name;
+    }
+    
+    /**
+     *
+     * @param string $name
+     * 
+     * @return mixed 
+     */
+    public function getStaticPropertyValue($propName)
+    {
+        $prop = $this->getProperty($propName);
+        if (!$prop->isStatic()) {
+            return false;
+        }
+        
+        return $prop->getDefaultValue();
     }
 }

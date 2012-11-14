@@ -37,6 +37,7 @@ use Documentor\Reflection\ReflectionFunction;
 use Documentor\Reflection\ReflectionClass;
 use Documentor\Reflection\ReflectionMethod;
 use Documentor\Reflection\ReflectionProperty;
+use Documentor\Reflection\ReflectionConstant;
 
 class Interpret
 {
@@ -157,7 +158,8 @@ class Interpret
     {
         $results = $this->parser->getResults();
 
-        return isset($results['classes'][$className]);
+        $merge = array_merge($results['classes'], $results['interfaces']);
+        return isset($merge);
     }
 
     /**
@@ -173,15 +175,23 @@ class Interpret
         }
 
         $results    = $this->parser->getResults();
-        $infos      = $results['classes'][$className];
-
+        $interface  = false;
+        
+        if (isset($results['classes'][$className])) {
+            $infos      = $results['classes'][$className];
+        } else {
+            $infos      = $results['interfaces'][$className];
+            $interface  = true;
+        }
+        
         $class = new ReflectionClass();
         $class->setStartLine($infos['startLine']);
         $class->setEndLine($infos['endLine']);
         $class->setFileName($this->parser->getFilePath());
         $class->setName($this->getItemFullName($infos['name']));
         $class->setNamespaceName($this->getNamespace());
-
+        $class->setInterface($interface);
+        
         if (isset($infos['parent']) && !empty($infos['parent'])) {
             $class->setParentClass($infos['parent']);
         }
@@ -251,6 +261,26 @@ class Interpret
                 $class->addProperty($attribute);
             }
         }
+        
+        // constants
+        if (isset($infos['constants']) && is_array($infos['constants'])) {
+            foreach ($infos['constants'] as $attr) {
+                $const = new ReflectionConstant($attr['name'], $attr['value']);
+                $const->setStartLine($attr['startLine']);
+                $const->setEndLine($attr['endLine']);
+                if (isset($attr['comment']) && is_array($attr['comment'])) {
+                    $const->setDocComment(
+                        DocComment::factory(
+                            $attr['comment']['text'],
+                            $attr['comment']['startLine'],
+                            $attr['comment']['endLine']
+                        )
+                    );
+                }
+
+                $class->addConstant($const);
+            }
+        }
 
 
         return $class;
@@ -265,5 +295,14 @@ class Interpret
     protected function getItemFullName($name)
     {
         return rtrim($this->getNamespace(), '\\') . '\\' . $name;
+    }
+    
+    /**
+     *
+     * @return PhpFileParser 
+     */
+    public function getParser()
+    {
+        return $this->parser;
     }
 }

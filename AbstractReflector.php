@@ -40,7 +40,7 @@ namespace Documentor;
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link     http://github.com/neiluj/Documentor
  */
-abstract class AbstractReflector
+abstract class AbstractReflector implements Reflector
 {
     protected $startLine;
 

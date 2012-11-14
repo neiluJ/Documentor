@@ -33,6 +33,7 @@
 namespace Documentor\Reflection;
 
 use Documentor\AbstractReflector;
+use Documentor\DocComment;
 
 /**
  * @category   Parsers
@@ -42,81 +43,71 @@ use Documentor\AbstractReflector;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://github.com/neiluj/Documentor
  */
-class ReflectionProperty extends AbstractReflector
+class ReflectionConstant
 {
-    const VISIBILITY_PUBLIC = 'public';
-    const VISIBILITY_PRIVATE = 'private';
-    const VISIBILITY_PROTECTED = 'protected';
+    protected $name;
 
-    protected $declaringClass = null;
+    protected $value;
 
-    protected $defaultValue = null;
-
-    protected $visibility = self::VISIBILITY_PUBLIC;
-
-    protected $static = false;
+    protected $startLine;
     
-    public function __construct($name, $visibility = self::VISIBILITY_PUBLIC,
-        $defaultValue = null, ReflectionClass $declaringClass = null
-    ) {
-        $this->name     = $name;
-        $this->defaultValue = $defaultValue;
-        $this->visibility = $visibility;
-        $this->declaringClass = $declaringClass;
+    protected $endLine;
+    
+    protected $docComment;
+
+    public function __construct($name, $value)
+    {
+        $this->name  = $name;
+        $this->value = $value;
     }
 
-    public function getDeclaringClass()
+    public function getName()
     {
-        return $this->declaringClass;
+        return $this->name;
     }
 
-    public function setDeclaringClass(ReflectionClass $declaringClass)
+    public function setName($name)
     {
-        $this->declaringClass = $declaringClass;
+        $this->name = $name;
     }
 
-    public function getDefaultValue()
+    public function getStartLine()
     {
-        return $this->defaultValue;
+        return $this->startLine;
     }
 
-    public function setDefaultValue($defaultValue)
+    public function setStartLine($startLine)
     {
-        $this->defaultValue = $defaultValue;
+        $this->startLine = $startLine;
     }
 
-    public function isStatic()
+    public function getEndLine()
     {
-        return $this->static;
+        return $this->endLine;
     }
 
-    public function setStatic($static)
+    public function setEndLine($endLine)
     {
-        $this->static = (bool)$static;
+        $this->endLine = $endLine;
+    }
+    
+    public function getDocComment()
+    {
+        return $this->docComment;
     }
 
-    public function isPublic()
+    public function setDocComment(DocComment $comment)
     {
-        return ($this->visibility == self::VISIBILITY_PUBLIC);
+        $this->docComment = $comment;
+    }
+    
+    public function getValue()
+    {
+        return $this->value;
     }
 
-    public function isPrivate()
+    public function setValue($value)
     {
-        return ($this->visibility == self::VISIBILITY_PRIVATE);
-    }
-
-    public function isProtected()
-    {
-        return ($this->visibility == self::VISIBILITY_PROTECTED);
-    }
-
-    public function getVisibility()
-    {
-        return $this->visibility;
-    }
-
-    public function setVisibility($visibility)
-    {
-        $this->visibility = $visibility;
+        $this->value = $value;
     }
 }
