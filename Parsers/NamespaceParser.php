@@ -36,7 +36,7 @@ use Documentor\AbstractParser;
 
 /**
  * @category   Parsers
- * @package    Documentor 
+ * @package    Documentor
  * @subpackage Parsers
  * @author     Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -45,7 +45,7 @@ use Documentor\AbstractParser;
 class NamespaceParser extends AbstractParser
 {
     const DEFAULT_NAMESPACE = '\\';
-    
+
     public function parse()
     {
         if(!isset($this->results)) {
@@ -53,7 +53,7 @@ class NamespaceParser extends AbstractParser
             $openNs = false;
             $namespace = null;
             $startLine = 0;
-            
+            $line = 0;
             foreach ($tokens as $num => $token) {
                 if (!is_array($token)) {
                     $tok = $token;
@@ -63,12 +63,12 @@ class NamespaceParser extends AbstractParser
                     $contents = $token[1];
                     $line = $token[2];
                 }
-                
+
                 if ($tok == \T_NAMESPACE) {
                     if (\is_string($openNs)) {
                         throw new \Exception(sprintf(
-                            "Parser error: double namespace (%s:%s).", 
-                            $this->filePath, 
+                            "Parser error: double namespace (%s:%s).",
+                            $this->filePath,
                             $line
                         ));
                     }
@@ -80,18 +80,18 @@ class NamespaceParser extends AbstractParser
                 } elseif (is_string($openNs) && $contents == ';') {
                     $namespace = trim($openNs);
                     $openNs = false;
-                    
+
                     break; // only one namespace per file
                 }
             }
-        
+
             $this->results = array(
                 'namespace' => $namespace,
                 'startLine' => $startLine,
                 'endLine' => $line
             );
         }
-        
+
         return $this->results;
     }
 }

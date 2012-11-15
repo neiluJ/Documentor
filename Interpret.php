@@ -40,7 +40,7 @@ use Documentor\Reflection\ReflectionFunction,
     Documentor\Reflection\ReflectionConstant;
 
 /**
- * 
+ *
  * @category Library
  * @package  Documentor
  * @author   Julien Ballestracci <julien@nitronet.org>
@@ -86,7 +86,7 @@ class Interpret
     public function getNamespace()
     {
         $results = $this->parser->getResults();
-        if (!isset($results['namespace']) || !is_array($results['namespace'])) {
+        if (!isset($results['namespace']) || !is_array($results['namespace']) || empty($results['namespace']['namespace'])) {
             return "\\";
         }
 
@@ -184,14 +184,14 @@ class Interpret
 
         $results    = $this->parser->getResults();
         $interface  = false;
-        
+
         if (isset($results['classes'][$className])) {
             $infos      = $results['classes'][$className];
         } else {
             $infos      = $results['interfaces'][$className];
             $interface  = true;
         }
-        
+
         $class = new ReflectionClass();
         $class->setStartLine($infos['startLine']);
         $class->setEndLine($infos['endLine']);
@@ -199,7 +199,7 @@ class Interpret
         $class->setName($this->getItemFullName($infos['name']));
         $class->setNamespaceName($this->getNamespace());
         $class->setInterface($interface);
-        
+
         if (isset($infos['parent']) && !empty($infos['parent'])) {
             $class->setParentClass($infos['parent']);
         }
@@ -268,7 +268,7 @@ class Interpret
                 $class->addProperty($attribute);
             }
         }
-        
+
         // constants
         if (isset($infos['constants']) && is_array($infos['constants'])) {
             foreach ($infos['constants'] as $attr) {
@@ -292,6 +292,36 @@ class Interpret
         return $class;
     }
 
+    public function getClassesNames()
+    {
+        $results    = $this->parser->getResults();
+        if (!isset($results['classes']) || !is_array($results['classes'])) {
+            return array();
+        }
+
+        $final = array();
+        foreach ($results['classes'] as $className => $infos) {
+            $final[] = rtrim($this->getNamespace(), '\\') . '\\' . $className;
+        }
+
+        return $final;
+    }
+
+    public function getFunctionsNames()
+    {
+        $results    = $this->parser->getResults();
+        if (!isset($results['functions']) || !is_array($results['functions'])) {
+            return array();
+        }
+
+        $final = array();
+        foreach ($results['functions'] as $infos) {
+            $final[] = rtrim($this->getNamespace(), '\\') . '\\' . $infos['name'];
+        }
+
+        return $final;
+    }
+
     /**
      *
      * @param string $name
@@ -302,19 +332,19 @@ class Interpret
     {
         return rtrim($this->getNamespace(), '\\') . '\\' . $name;
     }
-    
+
     /**
      *
-     * @return PhpFileParser 
+     * @return PhpFileParser
      */
     public function getParser()
     {
         return $this->parser;
     }
-    
+
     /**
      *
-     * @return array 
+     * @return array
      */
     public function getClasses()
     {
@@ -324,13 +354,13 @@ class Interpret
         foreach ($merge as $className => $infos) {
             $final[$className] = $this->getClass($className);
         }
-        
+
         return $final;
     }
-    
+
     /**
      *
-     * @return array 
+     * @return array
      */
     public function getFunctions()
     {
@@ -340,7 +370,7 @@ class Interpret
         foreach ($results['functions'] as $func) {
             $final[$func['name']] = $this->getFunction($func['name']);
         }
-        
+
         return $final;
     }
 }
