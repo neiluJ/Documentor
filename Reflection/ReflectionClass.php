@@ -91,9 +91,11 @@ class ReflectionClass extends AbstractReflector
     {
         if (!isset($this->methods[$methodName])) {
             throw new \Documentor\Exception(
-                "Unknown method '%s' in class '%s'",
-                $methodName,
-                $this->name
+                sprintf(
+                    "Unknown method '%s' in class '%s'",
+                    $methodName,
+                    $this->name
+                )
             );
         }
 
@@ -142,9 +144,11 @@ class ReflectionClass extends AbstractReflector
     {
         if (!isset($this->properties[$propName])) {
             throw new \Documentor\Exception(
-                "Unknown property '%s' in class '%s'",
-                $propName,
-                $this->name
+                sprintf(
+                    "Unknown property '%s' in class '%s'",
+                    $propName,
+                    $this->name
+                )
             );
         }
 
@@ -193,9 +197,11 @@ class ReflectionClass extends AbstractReflector
     {
         if (!isset($this->constants[$propName])) {
             throw new \Documentor\Exception(
-                "Unknown constant '%s' in class '%s'",
-                $constantName,
-                $this->name
+                sprintf(
+                    "Unknown constant '%s' in class '%s'",
+                    $constantName,
+                    $this->name
+                )
             );
         }
 
