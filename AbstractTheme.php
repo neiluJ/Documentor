@@ -44,7 +44,9 @@ abstract class AbstractTheme implements Theme
 {
     protected $targetDirectory;
 
-    protected $fileExtension;
+    protected $fileExtension = 'html';
+
+    protected $indexFilename = 'index';
 
     protected $project;
 
@@ -69,6 +71,16 @@ abstract class AbstractTheme implements Theme
         $this->fileExtension = $fileExtension;
     }
 
+    public function getIndexFilename()
+    {
+        return $this->indexFilename;
+    }
+
+    public function setIndexFilename($indexFilename)
+    {
+        $this->indexFilename = $indexFilename;
+    }
+
     public function urlClass($className)
     {
         ;
@@ -82,5 +94,66 @@ abstract class AbstractTheme implements Theme
     public function urlNamespace($namespaceName)
     {
         ;
+    }
+
+    protected function getTargetFilename($thing, $prefix = null)
+    {
+        if (strpos($thing, '\\', 0) === 0) {
+            $thing = Theme::DEFAULT_NS_NAME . substr($thing, 1);
+        }
+
+        return $this->targetDirectory .
+                DIRECTORY_SEPARATOR .
+                (!is_null($prefix) ? $prefix . DIRECTORY_SEPARATOR : null) .
+                str_replace('\\', DIRECTORY_SEPARATOR, $thing) .
+                '.'. $this->fileExtension;
+    }
+
+    protected function prepareTargetDirectory()
+    {
+        if (!is_dir($this->targetDirectory)) {
+           if (!@mkdir($this->targetDirectory, 0777, true)) {
+               throw new Exception(
+                    sprintf(
+                         "Unable to create documentation directory: %s",
+                         $this->targetDirectory
+                    )
+               );
+           }
+        }
+
+        return true;
+    }
+
+    protected function prepareDocFile($filePath)
+    {
+        $dir = dirname($filePath);
+        if (strpos($dir, $this->targetDirectory) === false) {
+            throw new Exception(
+                sprintf(
+                     "Can't prepare file '%s': outside of the target directory",
+                     $filePath
+                )
+           );
+        }
+
+        if ($dir == $this->targetDirectory) {
+            return true;
+        } elseif (!is_dir($dir)) {
+           if (!@mkdir($dir, 0777, true)) {
+               throw new Exception(
+                    sprintf(
+                         "Unable to create documentation directory: %s",
+                         $dir
+                    )
+               );
+           }
+        }
+
+        if (is_file($filePath)) {
+            @unlink($filePath);
+        }
+
+        return true;
     }
 }

@@ -3,19 +3,10 @@ namespace Documentor\Themes;
 
 use Documentor\AbstractTheme;
 use Documentor\Project;
+use Documentor\ThemeResource;
 
 class Markdown extends AbstractTheme
 {
-    /**
-     * @var Project
-     */
-    protected $project;
-
-    /**
-     * @var string
-     */
-    protected $targetDirectory;
-
     /**
      * Constructor
      *
@@ -26,6 +17,7 @@ class Markdown extends AbstractTheme
         parent::__construct($project, $targetDirectory);
 
         $this->setFileExtension("md");
+        $this->setIndexFilename('README');
     }
 
     /**
@@ -34,16 +26,7 @@ class Markdown extends AbstractTheme
      */
     public function generate()
     {
-        if (!is_dir($this->targetDirectory)) {
-           if (!@mkdir($this->targetDirectory, 0777, true)) {
-               throw new \Documentor\Exception(
-                    sprintf(
-                         "Unable to create documentation directory: %s",
-                         $this->targetDirectory
-                    )
-               );
-           }
-        }
+        $this->prepareTargetDirectory();
 
         foreach ($this->project->getNamespaces() as $nsName) {
             $this->generateNamespaceDoc($nsName);
@@ -54,17 +37,34 @@ class Markdown extends AbstractTheme
         return true;
     }
 
-    public function generateDocIndex()
+    protected function generateDocIndex()
     {
-
+        $fileName = $this->getTargetFilename($this->indexFilename);
+        echo "writing doc file: $fileName<br />";
     }
 
-    public function generateNamespaceDoc($nsName)
+    protected function generateNamespaceDoc($nsName)
     {
-        echo $nsName .'<br />';
+        $fileName = $this->getTargetFilename($nsName, \Documentor\Theme::FOLDER_NAMESPACES);
+        if (!$this->prepareDocFile($fileName)) {
+            throw new \Documentor\Exception(sprintf("Unable to prepare file directory: %s", $fileName));
+        }
+
+        echo "writing doc file: $fileName ...";
+        $resource = new ThemeResource(
+            __DIR__ .'/Resources/markdown/namespace.phtml',
+            array(
+                'namespaceName' => $nsName
+            )
+        );
+        $resource->setProject($this->project);
+        $resource->setType(ThemeResource::TYPE_NAMESPACE);
+
+        file_put_contents($fileName, $resource->execute());
+        echo "ok.<br />";
     }
 
-    public function generateClassDoc($className)
+    protected function generateClassDoc($className)
     {
 
     }

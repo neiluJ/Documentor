@@ -1,7 +1,71 @@
-# <?php echo $namespace; ?>
+<?php
+ $classes = $this->getProject()->getNamespaceClasses($this->namespaceName);
+ $nsFuncs = $this->getProject()->getNamespaceFunctions($this->namespaceName);
+ $nsInterfaces = array();
+ $nsClasses = array();
+
+ foreach($classes as $class) {
+     if($class->isInterface()) {
+         $nsInterfaces[$class->getShortName()] = $class;
+     } else {
+         $nsClasses[$class->getShortName()] = $class;
+     }
+ }
+
+?>
+# Namespace: [<?php echo $this->namespaceName; ?>](/namespaces/<?php echo $this->namespaceName; ?>.md)
+
 
 ## Classes
 
-* 
+<?php foreach ($nsClasses as $class): ?>
+* [<?php echo $class->getShortName(); ?>](/classes/<?php echo $class->getShortName(); ?>.md)
+<?php endforeach; ?>
+
+## Interfaces
+
+<?php foreach ($nsInterfaces as $class): ?>
+* *<?php echo $class->getShortName(); ?>*
+<?php endforeach; ?>
 
 ## Functions
+
+<?php foreach ($nsFuncs as $func): ?>
+### <?php echo $func->getShortName(); ?>
+
+```
+<?php echo $func->getSignatureString(); ?>
+
+```
+
+<?php if ($func->getDocComment() !== null): ?>
+<?php echo strip_tags($func->getDocComment()->getComment()); ?>
+
+<?php endif; ?>
+
+<?php
+    $params = $func->getParameters();
+    $doc = $func->getDocComment();
+
+    $paramsTags = (isset($doc) ? $doc->getTags('param') : array());
+    $returnTag = (isset($doc) ? $doc->getFirstTag('return') : null);
+?>
+<?php if(count($params)): ?>
+##### Parameters
+<?php foreach($params as $parameter): ?>
+* $**<?php echo $parameter->getName() ?>** <?php if($parameter->isOptional()): ?>*(optional)*<?php endif; ?>
+
+
+  <?php echo (isset($paramsTags[$parameter->getPosition()]) ? $paramsTags[$parameter->getPosition()]->getDescription() : "*no description*"); ?>
+
+
+<?php endforeach; ?>
+
+<?php endif; ?>
+
+##### Return type
+
+```<?php echo (isset($returnTag) ? $returnTag->getText() : "mixed*"); ?>```
+
+---
+<?php endforeach; ?>

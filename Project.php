@@ -149,4 +149,36 @@ class Project
 
         return $this->functions;
     }
+
+    public function getNamespaceClasses($ns)
+    {
+        $this->index();
+        $classes    = array();
+        $countRoot  = count(explode('\\', $ns));
+        foreach ($this->classes as $className => $file) {
+            $xpl = explode('\\', $className);
+            if (\strpos($className, $ns) === 0 && count($xpl) == $countRoot+1) {
+                $interpret = new Interpret($file);
+                array_push($classes, $interpret->getClass(array_pop($xpl)));
+            }
+        }
+
+        return $classes;
+    }
+
+    public function getNamespaceFunctions($ns)
+    {
+        $this->index();
+        $funcs    = array();
+        $countRoot  = count(explode('\\', $ns));
+        foreach ($this->functions as $funcName => $file) {
+            $xpl = explode('\\', $funcName);
+            if (\strpos($funcName, $ns) === 0 && count($xpl) == $countRoot+1) {
+                $interpret = new Interpret($file);
+                array_push($funcs, $interpret->getFunction(array_pop($xpl)));
+            }
+        }
+
+        return $funcs;
+    }
 }

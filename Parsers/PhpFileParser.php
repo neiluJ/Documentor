@@ -93,8 +93,8 @@ class PhpFileParser extends AbstractParser
 
     protected function appendClassesComments($appendType = 'classes')
     {
-        if(!isset($this->results) || !isset($this->results['classes'])
-           || !is_array($this->results['classes'])
+        if(!isset($this->results) || !isset($this->results[$appendType])
+           || !is_array($this->results[$appendType])
         ) {
             return;
         }
@@ -130,7 +130,7 @@ class PhpFileParser extends AbstractParser
                 foreach ($infos['methods'] as $attr => $attrInfos) {
                     $comment = $this->getDocCommentIdxForItemAtLine($attrInfos['startLine']);
                     if  ($comment !== false) {
-                        $this->results['classes'][$idx]['methods'][$attr]['comment'] = $this->results['comments'][$comment];
+                        $this->results[$appendType][$idx]['methods'][$attr]['comment'] = $this->results['comments'][$comment];
                         unset($this->results['comments'][$comment]);
                     }
                 }

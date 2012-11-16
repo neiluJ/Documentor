@@ -33,8 +33,6 @@
 namespace Documentor;
 
 /**
- * Base exception class
- *
  * @category Interfaces
  * @package  Documentor
  * @author   Julien Ballestracci <julien@nitronet.org>
@@ -43,6 +41,11 @@ namespace Documentor;
  */
 interface Theme
 {
+    const DEFAULT_NS_NAME = '_global';
+
+    const FOLDER_NAMESPACES = 'namespaces';
+    const FOLDER_CLASSES    = 'classes';
+
     public function __construct(Project $project, $targetDirectory);
 
     public function getFileExtension();

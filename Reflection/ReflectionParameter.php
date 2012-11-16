@@ -142,7 +142,7 @@ class ReflectionParameter
         $this->type = (bool)$type;
     }
 
-    public function getOptional()
+    public function isOptional()
     {
         return $this->optional;
     }
