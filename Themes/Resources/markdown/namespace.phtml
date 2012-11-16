@@ -30,42 +30,15 @@
 
 ## Functions
 
-<?php foreach ($nsFuncs as $func): ?>
-### <?php echo $func->getShortName(); ?>
-
-```
-<?php echo $func->getSignatureString(); ?>
-
-```
-
-<?php if ($func->getDocComment() !== null): ?>
-<?php echo strip_tags($func->getDocComment()->getComment()); ?>
-
-<?php endif; ?>
-
-<?php
-    $params = $func->getParameters();
-    $doc = $func->getDocComment();
-
-    $paramsTags = (isset($doc) ? $doc->getTags('param') : array());
-    $returnTag = (isset($doc) ? $doc->getFirstTag('return') : null);
-?>
-<?php if(count($params)): ?>
-##### Parameters
-<?php foreach($params as $parameter): ?>
-* $**<?php echo $parameter->getName() ?>** <?php if($parameter->isOptional()): ?>*(optional)*<?php endif; ?>
-
-
-  <?php echo (isset($paramsTags[$parameter->getPosition()]) ? $paramsTags[$parameter->getPosition()]->getDescription() : "*no description*"); ?>
-
-
+<?php foreach ($nsFuncs as $function): ?>
+* [<?php echo $function->getShortName(); ?>](#<?php echo $function->getShortName(); ?>)
 <?php endforeach; ?>
-
-<?php endif; ?>
-
-##### Return type
-
-```<?php echo (isset($returnTag) ? $returnTag->getText() : "mixed*"); ?>```
 
 ---
-<?php endforeach; ?>
+
+<?php 
+
+foreach ($nsFuncs as $function) {
+    include __DIR__ .'/parameter.phtml';
+}
+?>

@@ -48,6 +48,10 @@ abstract class AbstractTheme implements Theme
 
     protected $indexFilename = 'index';
 
+    /**
+     *
+     * @var Project
+     */
     protected $project;
 
     /**

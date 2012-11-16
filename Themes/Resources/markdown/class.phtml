@@ -1,0 +1,25 @@
+<?php
+ $reflector = $this->getReflector();
+ $methods = $reflector->getMethods(); 
+ 
+ ksort($methods, SORT_ASC);
+?>
+
+
+# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](/namespaces/<?php echo $reflector->getNamespaceName(); ?>.md) / [<?php echo $reflector->getShortName(); ?>](/classes/<?php echo str_replace('\\','/', $reflector->getName()); ?>.md)
+
+
+## Methods
+
+<?php foreach ($methods as $function): ?>
+* [<?php echo $function->getShortName(); ?>](#<?php echo $function->getShortName(); ?>)
+<?php endforeach; ?>
+
+---
+
+<?php 
+
+foreach ($methods as $function) {
+    include __DIR__ .'/parameter.phtml';
+}
+?>

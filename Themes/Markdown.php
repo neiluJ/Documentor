@@ -30,6 +30,10 @@ class Markdown extends AbstractTheme
 
         foreach ($this->project->getNamespaces() as $nsName) {
             $this->generateNamespaceDoc($nsName);
+            
+            foreach ($this->project->getNamespaceClasses($nsName) as $class) {
+                $this->generateClassDoc($class);
+            }
         }
 
         $this->generateDocIndex();
@@ -64,8 +68,23 @@ class Markdown extends AbstractTheme
         echo "ok.<br />";
     }
 
-    protected function generateClassDoc($className)
+    protected function generateClassDoc(\Documentor\Reflection\ReflectionClass $class)
     {
+        $className = $class->getName();
+        $fileName = $this->getTargetFilename($className, \Documentor\Theme::FOLDER_CLASSES);
+        if (!$this->prepareDocFile($fileName)) {
+            throw new \Documentor\Exception(sprintf("Unable to prepare file directory: %s", $fileName));
+        }
 
+        echo "writing doc file: $fileName ...";
+        $resource = new ThemeResource(
+            __DIR__ .'/Resources/markdown/class.phtml'
+        );
+        $resource->setProject($this->project);
+        $resource->setType(ThemeResource::TYPE_NAMESPACE);
+        $resource->setReflector($class);
+
+        file_put_contents($fileName, $resource->execute());
+        echo "ok.<br />";
     }
 }
