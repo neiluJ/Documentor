@@ -1,14 +1,41 @@
 <?php
  $reflector = $this->getReflector();
- $methods = $reflector->getMethods(); 
+ $methods = $reflector->getMethods();
+ 
+ if (!$reflector->isInterface()) {
+    $properties = $reflector->getProperties();
+    ksort($properties, SORT_ASC);
+ } 
+ 
+ $consts = $reflector->getConstants();
+ $doc = $reflector->getDocComment();
+ $parent = $reflector->getParentClass();
  
  ksort($methods, SORT_ASC);
 ?>
 
 
-# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](/namespaces/<?php echo $reflector->getNamespaceName(); ?>.md) / [<?php echo $reflector->getShortName(); ?>](/classes/<?php echo str_replace('\\','/', $reflector->getName()); ?>.md)
+# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](/namespaces/<?php echo str_replace('\\', '/', $reflector->getNamespaceName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](/classes/<?php echo str_replace('\\','/', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo $parent; ?><?php endif; ?>
+
+<?php 
+if(isset($doc)) {
+    echo $doc->getComment();
+}
+?>
 
 
+Summary: <?php if(count($consts)): ?>[Constants](#Constants) - <?php endif; ?>[Methods](#Methods) - <?php if (isset($properties)): ?>[Attributes](Attributes)<?php endif; ?> 
+
+
+<?php if(count($consts)): ?>
+## Constants
+
+<?php foreach ($consts as $constant): ?>
+* ```<?php echo $constant->getName(); ?>```   
+<?php endforeach; ?>
+
+
+<?php endif; ?>
 ## Methods
 
 <?php foreach ($methods as $function): ?>
@@ -23,3 +50,21 @@ foreach ($methods as $function) {
     include __DIR__ .'/parameter.phtml';
 }
 ?>
+
+<?php if (!$reflector->isInterface() && isset($properties) && count($properties)): ?>
+
+## Attributes
+
+<?php foreach ($properties as $prop): ?>
+* <?php echo $prop->getVisibility(); ?> <?php echo ($prop->isStatic() ? 'static' : ''); ?> [$<?php echo $prop->getName(); ?>](#<?php echo $prop->getName(); ?>)
+<?php endforeach; ?>
+
+---
+
+<?php 
+
+foreach ($properties as $property) {
+    include __DIR__ .'/property.phtml';
+}
+?>
+<?php endif; ?>

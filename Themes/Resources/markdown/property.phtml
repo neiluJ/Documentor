@@ -1,0 +1,23 @@
+### <?php echo $property->getName(); ?>
+
+```
+<?php echo $property->getVisibility(); ?> <?php echo ($property->isStatic() ? 'static ' : '') ?>$<?php echo $property->getName(); ?>
+
+```
+
+<?php if ($property->getDocComment() !== null): ?>
+<?php echo strip_tags($property->getDocComment()->getComment()); ?>
+
+<?php endif; ?>
+
+<?php
+    $doc = $property->getDocComment();
+
+    $typeTag = (isset($doc) ? $doc->getFirstTag('var') : null);
+?>
+##### Type
+
+```<?php echo (isset($typeTag) ? $typeTag->getText() : "mixed*"); ?>```
+
+---
+
