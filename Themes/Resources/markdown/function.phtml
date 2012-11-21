@@ -21,7 +21,7 @@
 ##### Parameters
 
 <?php foreach($params as $parameter): ?>
-* $**<?php echo $parameter->getName() ?>** <?php if($parameter->isOptional()): ?>*(optional)*<?php endif; ?>
+* **$<?php echo $parameter->getName() ?>** <?php if($parameter->isOptional()): ?>*(optional)*<?php endif; ?>
 
   <?php echo (isset($paramsTags[$parameter->getPosition()]) ? $paramsTags[$parameter->getPosition()]->getDescription() : "*no description*"); ?>
 
