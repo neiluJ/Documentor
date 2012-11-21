@@ -1,6 +1,8 @@
 ### <?php echo $function->getShortName(); ?>
 
-```
+
+``` php
+
 <?php echo $function->getSignatureString(); ?>
 
 ```
@@ -9,7 +11,6 @@
 <?php echo strip_tags($function->getDocComment()->getComment()); ?>
 
 <?php endif; ?>
-
 <?php
     $params = $function->getParameters();
     $doc = $function->getDocComment();
@@ -19,20 +20,18 @@
 ?>
 <?php if(count($params)): ?>
 ##### Parameters
+
 <?php foreach($params as $parameter): ?>
 * $**<?php echo $parameter->getName() ?>** <?php if($parameter->isOptional()): ?>*(optional)*<?php endif; ?>
 
-
   <?php echo (isset($paramsTags[$parameter->getPosition()]) ? $paramsTags[$parameter->getPosition()]->getDescription() : "*no description*"); ?>
 
-
 <?php endforeach; ?>
-
 <?php endif; ?>
 
 ##### Return type
 
-```<?php echo (isset($returnTag) ? $returnTag->getText() : "mixed*"); ?>```
+```<?php echo (isset($returnTag) ? $returnTag->getText() : "mixed"); ?>```
 
 ---
 

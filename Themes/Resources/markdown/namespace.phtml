@@ -15,7 +15,6 @@
 ?>
 # Namespace: [<?php echo $this->namespaceName; ?>](/namespaces/<?php echo $this->namespaceName; ?>.md)
 
-
 ## Classes
 
 <?php foreach ($nsClasses as $class): ?>
@@ -31,7 +30,7 @@
 ## Functions
 
 <?php foreach ($nsFuncs as $function): ?>
-* [<?php echo $function->getShortName(); ?>](#<?php echo $function->getShortName(); ?>)
+* [<?php echo $function->getShortName(); ?>](#<?php echo strtolower($function->getShortName()); ?>)
 <?php endforeach; ?>
 
 ---
@@ -39,6 +38,6 @@
 <?php 
 
 foreach ($nsFuncs as $function) {
-    include __DIR__ .'/parameter.phtml';
+    include __DIR__ .'/function.phtml';
 }
 ?>

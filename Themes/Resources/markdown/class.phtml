@@ -13,9 +13,8 @@
  
  ksort($methods, SORT_ASC);
 ?>
-
-
 # <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](/namespaces/<?php echo str_replace('\\', '/', $reflector->getNamespaceName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](/classes/<?php echo str_replace('\\','/', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo $parent; ?><?php endif; ?>
+
 
 <?php 
 if(isset($doc)) {
@@ -23,8 +22,7 @@ if(isset($doc)) {
 }
 ?>
 
-
-Summary: <?php if(count($consts)): ?>[Constants](#Constants) - <?php endif; ?>[Methods](#Methods) - <?php if (isset($properties)): ?>[Attributes](Attributes)<?php endif; ?> 
+Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?>[Methods](#methods) - <?php if (isset($properties)): ?>[Attributes](#attributes)<?php endif; ?> 
 
 
 <?php if(count($consts)): ?>
@@ -39,7 +37,7 @@ Summary: <?php if(count($consts)): ?>[Constants](#Constants) - <?php endif; ?>[M
 ## Methods
 
 <?php foreach ($methods as $function): ?>
-* [<?php echo $function->getShortName(); ?>](#<?php echo $function->getShortName(); ?>)
+* [<?php echo $function->getShortName(); ?>](#<?php echo strtolower($function->getShortName()); ?>)
 <?php endforeach; ?>
 
 ---
@@ -47,7 +45,7 @@ Summary: <?php if(count($consts)): ?>[Constants](#Constants) - <?php endif; ?>[M
 <?php 
 
 foreach ($methods as $function) {
-    include __DIR__ .'/parameter.phtml';
+    include __DIR__ .'/function.phtml';
 }
 ?>
 
@@ -56,7 +54,7 @@ foreach ($methods as $function) {
 ## Attributes
 
 <?php foreach ($properties as $prop): ?>
-* <?php echo $prop->getVisibility(); ?> <?php echo ($prop->isStatic() ? 'static' : ''); ?> [$<?php echo $prop->getName(); ?>](#<?php echo $prop->getName(); ?>)
+* <?php echo $prop->getVisibility(); ?> <?php echo ($prop->isStatic() ? 'static' : ''); ?> [$<?php echo $prop->getName(); ?>](#<?php echo strtolower($prop->getName()); ?>)
 <?php endforeach; ?>
 
 ---

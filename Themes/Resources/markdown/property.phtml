@@ -1,7 +1,9 @@
 ### <?php echo $property->getName(); ?>
 
-```
-<?php echo $property->getVisibility(); ?> <?php echo ($property->isStatic() ? 'static ' : '') ?>$<?php echo $property->getName(); ?>
+
+``` php
+
+<?php echo $property->getVisibility(); ?> <?php echo ($property->isStatic() ? 'static ' : '') ?>$<?php echo $property->getName(); ?>  
 
 ```
 
@@ -15,7 +17,9 @@
 
     $typeTag = (isset($doc) ? $doc->getFirstTag('var') : null);
 ?>
+
 ##### Type
+
 
 ```<?php echo (isset($typeTag) ? $typeTag->getText() : "mixed*"); ?>```
 
