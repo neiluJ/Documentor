@@ -50,9 +50,9 @@ class ReflectionFunction extends AbstractReflector
 
     protected $parameters;
 
-    public function isClosure()
+    public function __construct($name = null)
     {
-        return false;
+        $this->name = $name;
     }
 
     public function isInternal()

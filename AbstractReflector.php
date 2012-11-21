@@ -54,6 +54,11 @@ abstract class AbstractReflector implements Reflector
 
     protected $docComment;
 
+    public function __construct($name = null)
+    {
+        $this->name = $name;
+    }
+    
     public function getStartLine()
     {
         return $this->startLine;

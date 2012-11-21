@@ -120,6 +120,7 @@ class MethodParser extends AbstractParser
 
                     $signature     .= 'function ' . trim($openFunction);
                     $startMethodLvl = true;
+                    $openFunction = false;
                 }
                 
                 if ($contents == '}') {

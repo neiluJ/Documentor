@@ -44,19 +44,15 @@ use Documentor\AbstractReflector;
  */
 class ReflectionProperty extends AbstractReflector
 {
-    const VISIBILITY_PUBLIC = 'public';
-    const VISIBILITY_PRIVATE = 'private';
-    const VISIBILITY_PROTECTED = 'protected';
-
     protected $declaringClass = null;
 
     protected $defaultValue = null;
 
-    protected $visibility = self::VISIBILITY_PUBLIC;
+    protected $visibility = ReflectionMethod::VIS_PRIVATE;
 
     protected $static = false;
     
-    public function __construct($name, $visibility = self::VISIBILITY_PUBLIC,
+    public function __construct($name, $visibility = ReflectionMethod::VIS_PUBLIC,
         $defaultValue = null, ReflectionClass $declaringClass = null
     ) {
         $this->name     = $name;
@@ -97,17 +93,17 @@ class ReflectionProperty extends AbstractReflector
 
     public function isPublic()
     {
-        return ($this->visibility == self::VISIBILITY_PUBLIC);
+        return ($this->visibility === ReflectionMethod::VIS_PUBLIC);
     }
 
     public function isPrivate()
     {
-        return ($this->visibility == self::VISIBILITY_PRIVATE);
+        return ($this->visibility === ReflectionMethod::VIS_PRIVATE);
     }
 
     public function isProtected()
     {
-        return ($this->visibility == self::VISIBILITY_PROTECTED);
+        return ($this->visibility === ReflectionMethod::VIS_PROTECTED);
     }
 
     public function getVisibility()

@@ -165,7 +165,7 @@ class DocComment
      * @return array
      */
     public function getTags($name)
-    {
+     {
         $tmp    = \explode("\n", $this->block);
         $start  = false;
         $lines  = array();

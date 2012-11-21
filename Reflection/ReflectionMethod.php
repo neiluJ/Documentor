@@ -42,13 +42,17 @@ namespace Documentor\Reflection;
  */
 class ReflectionMethod extends ReflectionFunction
 {
-    protected $visibility;
+    const VIS_PUBLIC = 'public';
+    const VIS_PRIVATE = 'private';
+    const VIS_PROTECTED = 'protected';
+    
+    protected $visibility = self::VIS_PUBLIC;
 
-    protected $abstract;
+    protected $abstract = false;
 
-    protected $static;
+    protected $static = false;
 
-    protected $final;
+    protected $final = false;
 
     protected $declaringClass;
 
@@ -112,5 +116,32 @@ class ReflectionMethod extends ReflectionFunction
     public function setDeclaringClass(ReflectionClass $declaringClass)
     {
         $this->declaringClass = $declaringClass;
+    }
+    
+    /**
+     *
+     * @return boolean 
+     */
+    public function isPublic()
+    {
+        return $this->visibility === self::VIS_PUBLIC;
+    }
+    
+    /**
+     *
+     * @return boolean 
+     */
+    public function isProtected()
+    {
+        return $this->visibility === self::VIS_PROTECTED;
+    }
+    
+    /**
+     *
+     * @return boolean 
+     */
+    public function isPrivate()
+    {
+        return $this->visibility === self::VIS_PRIVATE;
     }
 }

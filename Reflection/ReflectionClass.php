@@ -195,7 +195,7 @@ class ReflectionClass extends AbstractReflector
      */
     public function getConstant($constantName)
     {
-        if (!isset($this->constants[$propName])) {
+        if (!isset($this->constants[$constantName])) {
             throw new \Documentor\Exception(
                 sprintf(
                     "Unknown constant '%s' in class '%s'",
@@ -296,6 +296,10 @@ class ReflectionClass extends AbstractReflector
     {
         $final = array();
         foreach ($this->getProperties() as $prop) {
+            if (!$prop->isStatic()) {
+                continue;
+            }
+            
             $final[] = $prop;
         }
         
@@ -334,7 +338,7 @@ class ReflectionClass extends AbstractReflector
             return $this->getMethod('__clone')->isPublic();
         }
         
-        return (!$this->isInterface() && !$this->isAbstract());
+        return $this->isInstantiable();
     }
     
     /**
@@ -361,11 +365,7 @@ class ReflectionClass extends AbstractReflector
     public function isInstance($object)
     {
         if (!is_object($object)) {
-            throw new \IllegalArgumentException();
-        }
-        
-        if (!class_exists($this->name)) {
-            return false;
+            throw new \InvalidArgumentException("argument should be an object");
         }
         
         return $object instanceof $this->name;
