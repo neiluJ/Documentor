@@ -34,13 +34,25 @@ Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?>[M
 
 
 <?php endif; ?>
-## Methods
+## Methods Summary
 
 <?php foreach ($methods as $function): ?>
 * [<?php echo $function->getShortName(); ?>](#<?php echo strtolower($function->getShortName()); ?>)
 <?php endforeach; ?>
 
+
+<?php if (!$reflector->isInterface() && isset($properties) && count($properties)): ?>
+
+## Attributes Summary
+
+<?php foreach ($properties as $prop): ?>
+* <?php echo $prop->getVisibility(); ?> <?php echo ($prop->isStatic() ? 'static' : ''); ?> [$<?php echo $prop->getName(); ?>](#<?php echo strtolower($prop->getName()); ?>)
+<?php endforeach; ?>
+<?php endif; ?>
+
 ---
+
+## Methods
 
 <?php 
 
@@ -52,12 +64,6 @@ foreach ($methods as $function) {
 <?php if (!$reflector->isInterface() && isset($properties) && count($properties)): ?>
 
 ## Attributes
-
-<?php foreach ($properties as $prop): ?>
-* <?php echo $prop->getVisibility(); ?> <?php echo ($prop->isStatic() ? 'static' : ''); ?> [$<?php echo $prop->getName(); ?>](#<?php echo strtolower($prop->getName()); ?>)
-<?php endforeach; ?>
-
----
 
 <?php 
 
