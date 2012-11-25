@@ -300,4 +300,58 @@ class ThemeResource
     {
         return $this->delete($name);
     }
+    
+    /**
+     *
+     * @param string $componentName
+     * @param string $type
+     * @param string $originName 
+     * 
+     * @return string
+     */
+    public function url($componentName, $type, $originName = null) 
+    {
+        $xpl        = explode('\\', ltrim($componentName, '\\'));
+        $typeName   = null;
+        $url        = array();
+        
+        if (null !== $originName) {
+            $xpl2   = explode('\\', ltrim($originName, '\\'));
+            $cnt    = count($xpl2);
+            if (count($cnt)) {
+                for ($x = 0; $x < $cnt; $x++) {
+                    array_push($url, "..");
+                }
+            }
+        } else {
+            array_push($url, ".");
+        }
+        
+        switch($type)
+        {
+            case 'namespace':
+                $typeName = 'namespaces';
+                break;
+            
+            case 'class':
+                $typeName = 'classes';
+                break;
+            
+            default:
+                break;
+        }
+        
+        if(empty($typeName)) {
+            throw new \InvalidArgumentException(
+                '$type parameter should be either "namespace" or "class"'
+            );
+        }
+        
+        array_push($url, $typeName);
+        foreach ($xpl as $compt) {
+            array_push($url, $compt);
+        }
+        
+        return implode('/', $url);
+    }
 }

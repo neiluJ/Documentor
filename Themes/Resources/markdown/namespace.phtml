@@ -13,20 +13,25 @@
  }
 
 ?>
-# Namespace: [<?php echo $this->namespaceName; ?>](/namespaces/<?php echo $this->namespaceName; ?>.md)
+# Namespace: [<?php echo $this->namespaceName; ?>](<?php echo $this->url($this->namespaceName, 'namespace', $this->namespaceName); ?>.md)
 
+<?php if(count($classes)): ?>
 ## Classes
 
 <?php foreach ($nsClasses as $class): ?>
-* [<?php echo $class->getShortName(); ?>](/classes/<?php echo $class->getShortName(); ?>.md)
+* [<?php echo $class->getShortName(); ?>](<?php echo $this->url($class->getName(), 'class', $this->namespaceName); ?>.md)
 <?php endforeach; ?>
 
+<?php endif; ?>
+<?php if(count($nsInterfaces)): ?>
 ## Interfaces
 
 <?php foreach ($nsInterfaces as $class): ?>
 * *<?php echo $class->getShortName(); ?>*
 <?php endforeach; ?>
 
+<?php endif; ?>
+<?php if (count($nsFuncs)): ?>
 ## Functions
 
 <?php foreach ($nsFuncs as $function): ?>
@@ -41,3 +46,4 @@ foreach ($nsFuncs as $function) {
     include __DIR__ .'/function.phtml';
 }
 ?>
+<?php endif; ?>

@@ -1,6 +1,7 @@
 <?php
  $reflector = $this->getReflector();
  $methods = $reflector->getMethods();
+ $properties = array();
  
  if (!$reflector->isInterface()) {
     $properties = $reflector->getProperties();
@@ -13,7 +14,7 @@
  
  ksort($methods, SORT_ASC);
 ?>
-# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](/namespaces/<?php echo str_replace('\\', '/', $reflector->getNamespaceName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](/classes/<?php echo str_replace('\\','/', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo $parent; ?><?php endif; ?>
+# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](<?php echo $this->url($reflector->getNamespaceName(), 'namespace', $reflector->getName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](<?php echo $this->url($reflector->getName(), 'class', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo $parent; ?><?php endif; ?>
 
 
 <?php 
@@ -22,8 +23,9 @@ if(isset($doc)) {
 }
 ?>
 
-Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?>[Methods](#methods-summary) - <?php if (isset($properties)): ?>[Attributes](#attributes-summary)<?php endif; ?> 
-
+<?php if(count($consts) || count($methods) || count($properties)): ?>
+Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?><?php if(count($methods)): ?>[Methods](#methods-summary) - <?php endif; ?><?php if (isset($properties) && count($properties)): ?>[Attributes](#attributes-summary)<?php endif; ?> 
+<?php endif; ?>
 
 <?php if(count($consts)): ?>
 ## Constants
@@ -34,13 +36,14 @@ Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?>[M
 
 
 <?php endif; ?>
+<?php if(count($methods)): ?>
 ## Methods Summary
 
 <?php foreach ($methods as $function): ?>
 * [<?php echo $function->getShortName(); ?>](#<?php echo strtolower($function->getShortName()); ?>)
 <?php endforeach; ?>
 
-
+<?php endif; ?>
 <?php if (!$reflector->isInterface() && isset($properties) && count($properties)): ?>
 
 ## Attributes Summary
@@ -50,6 +53,7 @@ Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?>[M
 <?php endforeach; ?>
 <?php endif; ?>
 
+<?php if(count($methods)): ?>
 ---
 
 ## Methods
@@ -61,6 +65,7 @@ foreach ($methods as $function) {
 }
 ?>
 
+<?php endif; ?>
 <?php if (!$reflector->isInterface() && isset($properties) && count($properties)): ?>
 
 ## Attributes
