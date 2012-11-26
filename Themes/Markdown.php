@@ -30,7 +30,7 @@ class Markdown extends AbstractTheme
 
         foreach ($this->project->getNamespaces() as $nsName) {
             $this->generateNamespaceDoc($nsName);
-            
+
             foreach ($this->project->getNamespaceClasses($nsName) as $class) {
                 $this->generateClassDoc($class);
             }
@@ -81,9 +81,10 @@ class Markdown extends AbstractTheme
             __DIR__ .'/Resources/markdown/class.phtml'
         );
         $resource->setProject($this->project);
-        $resource->setType(ThemeResource::TYPE_NAMESPACE);
+        $resource->setType(ThemeResource::TYPE_CLASS);
         $resource->setReflector($class);
-
+        $resource->setResolver(new \Documentor\Resolver($this->project, $class));
+        
         file_put_contents($fileName, $resource->execute());
         echo "ok.<br />";
     }

@@ -181,4 +181,19 @@ class Project
 
         return $funcs;
     }
+
+    public function getNamespaceNamespaces($ns)
+    {
+        $this->index();
+        $nses    = array();
+        $countRoot  = count(explode('\\', $ns));
+        foreach ($this->namespaces as $nsName) {
+            $xpl = explode('\\', $nsName);
+            if (\strpos($nsName, $ns) === 0 && count($xpl) == $countRoot+1) {
+                array_push($nses, $nsName);
+            }
+        }
+
+        return $nses;
+    }
 }

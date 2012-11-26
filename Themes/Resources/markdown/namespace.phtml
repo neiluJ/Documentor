@@ -3,6 +3,7 @@
  $nsFuncs = $this->getProject()->getNamespaceFunctions($this->namespaceName);
  $nsInterfaces = array();
  $nsClasses = array();
+ $nses      = $this->getProject()->getNamespaceNamespaces($this->namespaceName);
 
  foreach($classes as $class) {
      if($class->isInterface()) {
@@ -40,10 +41,18 @@
 
 ---
 
-<?php 
+<?php
 
 foreach ($nsFuncs as $function) {
     include __DIR__ .'/function.phtml';
 }
 ?>
+<?php endif; ?>
+
+<?php if (count($nses)): ?>
+## Others Namespaces
+
+<?php foreach ($nses as $namespace): ?>
+* [<?php echo $namespace; ?>](<?php echo $this->url($namespace, 'namespace', $this->namespaceName); ?>.md)
+<?php endforeach; ?>
 <?php endif; ?>

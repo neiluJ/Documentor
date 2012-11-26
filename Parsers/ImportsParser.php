@@ -36,7 +36,7 @@ use Documentor\AbstractParser;
 
 /**
  * @category   Parsers
- * @package    Documentor 
+ * @package    Documentor
  * @subpackage Parsers
  * @author     Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -53,7 +53,7 @@ class ImportsParser extends AbstractParser
             $uses       = array();
             $startLine  = 0;
             $inFunction = 0;
-            
+
             foreach ($tokens as $num => $token) {
                 if (!is_array($token)) {
                     $tok = $token;
@@ -71,16 +71,16 @@ class ImportsParser extends AbstractParser
                         $inFunction++;
                     continue;
                 }
-                
+
                if ($tok == \T_USE && !$inFunction) {
                     if (\is_string($openUse)) {
                         throw new \Exception(sprintf(
-                            "Parser error: double USE (%s:%s).", 
-                            $this->filePath, 
+                            "Parser error: double USE (%s:%s).",
+                            $this->filePath,
                             $line
                         ));
                     }
-                    
+
                     $startLine = $line;
                     $openUse = "";
                     continue;
@@ -89,34 +89,43 @@ class ImportsParser extends AbstractParser
                 elseif ($tok == \T_AS && is_string($openUse)) {
                     if (\is_string($openAs)) {
                         throw new \Exception(sprintf(
-                            "Parser error: double AS (%s:%s).", 
-                            $this->filePath, 
+                            "Parser error: double AS (%s:%s).",
+                            $this->filePath,
                             $line
                         ));
                     }
-                    
+
                     $openAs = "";
                     continue;
                 }
-                
+
                 elseif (is_string($openUse) && !is_string($openAs) && ($contents != ';' && $contents != ',')) {
                     $openUse .= $contents;
                 } elseif (is_string($openUse) && is_string($openAs) && ($contents != ';' && $contents != ',')) {
                     $openAs .= $contents;
                 } elseif (is_string($openUse) && (is_string($openAs) || $openAs == false) && ($contents == ';' || $contents == ',')) {
+                    if (!is_string($openAs)) {
+                        $expl = explode("\\", $openUse);
+                        $openAs = array_pop($expl);
+                    }
+
                     $this->results[] = array(
                         'import'    => trim($openUse),
                         'alias'     => (!is_string($openAs) ? null : trim($openAs)),
                         'startLine' => $startLine,
                         'endLine'   => $line
                     );
-                    
+
                     $openUse = ($contents == ',' ? "" : false);
                     $openAs = false;
                 }
             }
+
+            if (!isset($this->results)) {
+                $this->results = array();
+            }
         }
-        
+
         return $this->results;
     }
 }

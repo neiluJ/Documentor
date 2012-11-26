@@ -2,45 +2,53 @@
  $reflector = $this->getReflector();
  $methods = $reflector->getMethods();
  $properties = array();
- 
+
+ require_once __DIR__ .'/macros.inc.php';
+
  if (!$reflector->isInterface()) {
     $properties = $reflector->getProperties();
     ksort($properties, SORT_ASC);
- } 
- 
+ }
+
  $consts = $reflector->getConstants();
  $doc = $reflector->getDocComment();
  $parent = $reflector->getParentClass();
- 
+
+ $hmethods = $this->resolver->heritedMethods();
+
  ksort($methods, SORT_ASC);
 ?>
-# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](<?php echo $this->url($reflector->getNamespaceName(), 'namespace', $reflector->getName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](<?php echo $this->url($reflector->getName(), 'class', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo $parent; ?><?php endif; ?>
+# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](<?php echo $this->url($reflector->getNamespaceName(), 'namespace', $reflector->getName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](<?php echo $this->url($reflector->getName(), 'class', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo displayLinkOrClassname($this, $parent, $reflector->getName()); ?><?php endif; ?>
 
 
-<?php 
+<?php
 if(isset($doc)) {
     echo $doc->getComment();
 }
 ?>
 
 <?php if(count($consts) || count($methods) || count($properties)): ?>
-Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?><?php if(count($methods)): ?>[Methods](#methods-summary) - <?php endif; ?><?php if (isset($properties) && count($properties)): ?>[Attributes](#attributes-summary)<?php endif; ?> 
+Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?><?php if(count($methods)): ?>[Methods](#methods-summary) - <?php endif; ?><?php if (isset($properties) && count($properties)): ?>[Attributes](#attributes-summary)<?php endif; ?>
 <?php endif; ?>
 
 <?php if(count($consts)): ?>
 ## Constants
 
 <?php foreach ($consts as $constant): ?>
-* ```<?php echo $constant->getName(); ?>```   
+* ```<?php echo $constant->getName(); ?>```
 <?php endforeach; ?>
 
 
 <?php endif; ?>
-<?php if(count($methods)): ?>
+<?php if(count($methods) || count($hmethods)): ?>
 ## Methods Summary
 
 <?php foreach ($methods as $function): ?>
 * [<?php echo $function->getShortName(); ?>](#<?php echo strtolower($function->getShortName()); ?>)
+<?php endforeach; ?>
+<?php foreach ($hmethods as $hclass => $methods): ?>
+<?php if (!count($methods)) { continue; } ?>
+* Herited from <?php echo displayLinkOrClassname($this, $hclass, $reflector->getName()); ?>: <?php foreach ($methods as $function): ?>[<?php echo $function->getShortName(); ?>](<?php echo $this->url($hclass, 'class', $reflector->getName()); ?>.md#<?php echo strtolower($function->getShortName()); ?>), <?php endforeach; ?>
 <?php endforeach; ?>
 
 <?php endif; ?>
@@ -58,7 +66,7 @@ Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?><?
 
 ## Methods
 
-<?php 
+<?php
 
 foreach ($methods as $function) {
     include __DIR__ .'/function.phtml';
@@ -70,7 +78,7 @@ foreach ($methods as $function) {
 
 ## Attributes
 
-<?php 
+<?php
 
 foreach ($properties as $property) {
     include __DIR__ .'/property.phtml';

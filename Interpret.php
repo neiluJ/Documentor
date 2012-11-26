@@ -167,7 +167,7 @@ class Interpret
         $results = $this->parser->getResults();
 
         $merge = array_merge($results['classes'], $results['interfaces']);
-        return isset($merge);
+        return isset($merge[$className]);
     }
 
     /**
