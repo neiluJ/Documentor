@@ -15,20 +15,29 @@
  $parent = $reflector->getParentClass();
 
  $hmethods = $this->resolver->heritedMethods();
+ $interfaces = $this->resolver->implementedInterfaces();
 
  ksort($methods, SORT_ASC);
 ?>
-# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](<?php echo $this->url($reflector->getNamespaceName(), 'namespace', $reflector->getName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](<?php echo $this->url($reflector->getName(), 'class', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo displayLinkOrClassname($this, $parent, $reflector->getName()); ?><?php endif; ?>
-
+# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](<?php echo $this->url($reflector->getNamespaceName(), 'namespace', $reflector->getName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](<?php echo $this->url($reflector->getName(), 'class', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo displayLinkOrClassname($this, $parent, $reflector->getName()); ?> <?php endif; ?>
 
 <?php
 if(isset($doc)) {
     echo $doc->getComment();
 }
 ?>
+<?php if(count($interfaces)): ?>
 
-<?php if(count($consts) || count($methods) || count($properties)): ?>
-Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?><?php if(count($methods)): ?>[Methods](#methods-summary) - <?php endif; ?><?php if (isset($properties) && count($properties)): ?>[Attributes](#attributes-summary)<?php endif; ?>
+### Implemented Interfaces
+<?php foreach ($interfaces as $int): ?>
+* <?php echo displayLinkOrClassname($this, $int, $reflector->getName()); ?>
+<?php endforeach; ?>
+
+<?php endif; ?>
+
+<?php if(count($consts) || count($methods) || count($hmethods) || count($properties)): ?>
+Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?><?php if(count($methods) || count($hmethods)): ?>[Methods](#methods-summary) - <?php endif; ?><?php if (isset($properties) && count($properties)): ?>[Attributes](#attributes-summary)<?php endif; ?>
+
 <?php endif; ?>
 
 <?php if(count($consts)): ?>
@@ -46,9 +55,9 @@ Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?><?
 <?php foreach ($methods as $function): ?>
 * [<?php echo $function->getShortName(); ?>](#<?php echo strtolower($function->getShortName()); ?>)
 <?php endforeach; ?>
-<?php foreach ($hmethods as $hclass => $methods): ?>
-<?php if (!count($methods)) { continue; } ?>
-* Herited from <?php echo displayLinkOrClassname($this, $hclass, $reflector->getName()); ?>: <?php foreach ($methods as $function): ?>[<?php echo $function->getShortName(); ?>](<?php echo $this->url($hclass, 'class', $reflector->getName()); ?>.md#<?php echo strtolower($function->getShortName()); ?>), <?php endforeach; ?>
+<?php foreach ($hmethods as $hclass => $hhmethods): ?>
+<?php if (!count($hhmethods)) { continue; } ?>
+* Herited from <?php echo displayLinkOrClassname($this, $hclass, $reflector->getName()); ?>: <?php foreach ($hhmethods as $function): ?>[<?php echo $function->getShortName(); ?>](<?php echo $this->url($hclass, 'class', $reflector->getName()); ?>.md#<?php echo strtolower($function->getShortName()); ?>), <?php endforeach; ?>
 <?php endforeach; ?>
 
 <?php endif; ?>

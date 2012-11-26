@@ -97,11 +97,54 @@ class Resolver
         if (strpos($className, '\\', 0) !== false) {
             return $className;
         }
-        
+
         $nsC     = new Parsers\NamespaceParser($file);
         $ns      = $nsC->parse();
 
         return $ns['namespace'] . '\\' . $className;
+    }
+
+    public function implementedInterfaces()
+    {
+        if (!$this->reflector instanceof Reflection\ReflectionClass) {
+            return array();
+        }
+
+        $parent = $this->reflector->getParentClass();
+        if (empty($parent)) {
+            return $this->reflector->getInterfacesNames();
+        }
+
+        $interfaces = $this->reflector->getInterfacesNames();
+        $this->getParentInterfaces($parent, $interfaces);
+
+        return $interfaces;
+    }
+
+    protected function getParentInterfaces($className, array &$interfaces = array())
+    {
+        $className = $this->resolveClassName($className);
+        if (!$this->isIndexed($className)) {
+            return;
+        }
+
+        $classes    = $this->project->getClasses();
+        $interpret  = new Interpret($classes[$className]);
+        try {
+            $reflector  = $interpret->getClass(trim($className));
+        } catch(Exception $e) {
+            $expl = explode('\\', $className);
+            $reflector = $interpret->getClass(array_pop($expl));
+        }
+
+        $interfaces += $reflector->getInterfacesNames();
+
+        $parent = $reflector->getParentClass();
+        if (!empty($parent)) {
+            $resolv = new self($this->project, $reflector);
+            $full   = $resolv->resolveClassName($parent);
+            $this->getParentInterfaces($full, $interfaces);
+        }
     }
 
     /**
@@ -110,14 +153,13 @@ class Resolver
      */
     public function heritedMethods()
     {
-        $herited = array();
         if (!$this->reflector instanceof Reflection\ReflectionClass) {
-            return $herited;
+            return array();
         }
 
         $parent = $this->reflector->getParentClass();
         if (empty($parent)) {
-            return $herited;
+            return array();
         }
 
         $methods = array();
