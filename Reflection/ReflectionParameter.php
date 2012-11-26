@@ -32,7 +32,7 @@
  */
 namespace Documentor\Reflection;
 
-use Documentor\AbstractReflector;
+use Documentor\Reflector;
 
 /**
  * @category   Parsers
@@ -42,7 +42,7 @@ use Documentor\AbstractReflector;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://github.com/neiluj/Documentor
  */
-class ReflectionParameter
+class ReflectionParameter implements Reflector
 {
     protected $name;
 

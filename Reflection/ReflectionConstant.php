@@ -32,8 +32,8 @@
  */
 namespace Documentor\Reflection;
 
-use Documentor\AbstractReflector;
 use Documentor\DocComment;
+use Documentor\Reflector;
 
 /**
  * @category   Parsers
@@ -43,7 +43,7 @@ use Documentor\DocComment;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://github.com/neiluj/Documentor
  */
-class ReflectionConstant
+class ReflectionConstant implements Reflector
 {
     protected $name;
 

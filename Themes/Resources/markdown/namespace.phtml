@@ -28,7 +28,7 @@
 ## Interfaces
 
 <?php foreach ($nsInterfaces as $class): ?>
-* *<?php echo $class->getShortName(); ?>*
+* [<?php echo $class->getShortName(); ?>](<?php echo $this->url($class->getName(), 'class', $this->namespaceName); ?>.md)
 <?php endforeach; ?>
 
 <?php endif; ?>

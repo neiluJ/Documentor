@@ -33,9 +33,7 @@
 namespace Documentor;
 
 /**
- * Documentation project
- *
- * @category Exceptions
+ * @category Library
  * @package  Documentor
  * @author   Julien Ballestracci <julien@nitronet.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -73,15 +71,19 @@ class Resolver
      *
      * @return string
      */
-    public function resolveClassName($className)
+    public function resolveClassName($className, Reflector $reflector = null)
     {
         $classes = $this->project->getClasses();
         if (isset($classes[$className])) {
             return $className;
         }
 
-        $file = $this->reflector->getFilename();
-        if (!isset($this->reflector) || empty($file) || !is_file($file)) {
+        if (null === $reflector) {
+            $reflector = $this->reflector;
+        }
+        
+        $file = $reflector->getFilename();
+        if (!$reflector instanceof Reflector || empty($file) || !is_file($file)) {
             return $className;
         }
 
@@ -115,7 +117,11 @@ class Resolver
             return $this->reflector->getInterfacesNames();
         }
 
-        $interfaces = $this->reflector->getInterfacesNames();
+        $interfaces = array();
+        foreach ($this->reflector->getInterfacesNames() as $interfaceName) {
+            $interfaces[] = $this->resolveClassName($interfaceName);
+        }
+        
         $this->getParentInterfaces($parent, $interfaces);
 
         return $interfaces;
@@ -137,12 +143,13 @@ class Resolver
             $reflector = $interpret->getClass(array_pop($expl));
         }
 
-        $interfaces += $reflector->getInterfacesNames();
+        foreach ($reflector->getInterfacesNames() as $interfaceName) {
+            $interfaces[] = $this->resolveClassName($interfaceName, $reflector);
+        }
 
         $parent = $reflector->getParentClass();
         if (!empty($parent)) {
-            $resolv = new self($this->project, $reflector);
-            $full   = $resolv->resolveClassName($parent);
+            $full   = $this->resolveClassName($parent, $reflector);
             $this->getParentInterfaces($full, $interfaces);
         }
     }
@@ -189,8 +196,7 @@ class Resolver
 
         $parent = $reflector->getParentClass();
         if (!empty($parent)) {
-            $resolv = new self($this->project, $reflector);
-            $full   = $resolv->resolveClassName($parent);
+            $full   = $this->resolveClassName($parent, $reflector);
             $this->getParentMethods($full, $methods);
         }
     }

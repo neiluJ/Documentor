@@ -299,8 +299,10 @@ class Interpret
             return array();
         }
 
-        $final = array();
-        foreach ($results['classes'] as $className => $infos) {
+        $interf = (isset($results['interfaces']) ? $results['interfaces'] : array());
+        $res    = array_merge($results['classes'], $results['interfaces']);
+        $final  = array();
+        foreach ($res as $className => $infos) {
             $final[] = rtrim($this->getNamespace(), '\\') . '\\' . $className;
         }
 
