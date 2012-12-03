@@ -54,7 +54,11 @@ function internals() {
         'link'  => "http://php.net/manual/en/language.types.array.php"
     ),
     'mixed'     => array(
-        'names' => array("mixed", "void"),
+        'names' => array("mixed"),
+        'link'  => null
+    ),
+    'void'     => array(
+        'names' => array("void"),
         'link'  => null
     )
 );
