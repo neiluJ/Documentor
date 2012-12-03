@@ -58,9 +58,8 @@ class DocComment
      */
     public static $tagsClasses = array(
         'param'     => 'Documentor\Tags\ParameterTag',
-        // 'author'    => 'Documentor\Tags\AuthorTag',
-        // 'license'   => 'Documentor\Tags\LicenseTag',
-        // 'see'       => 'Documentor\Tags\SeeTag',
+        'return'    => 'Documentor\Tags\ReturnTag',
+        'var'       => 'Documentor\Tags\ReturnTag',
         self::GENERIC_TAG_KEY  => 'Documentor\Tags\GenericTag'
     );
 

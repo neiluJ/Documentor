@@ -28,12 +28,16 @@
 <?php endforeach; ?>
 <?php endif; ?>
 
-##### Return type
+##### Returns
 
-```
-<?php echo (isset($returnTag) ? $returnTag->getText() : "mixed"); ?>
+<?php if(isset($returnTag)): ?>
+Type: <?php echo typeLink($this, $returnTag, (isset($reflector) ? $reflector->getName() : $this->namespaceName)); ?> 
 
-```
+<?php if(strlen($returnTag->getDescription())): ?>
+Description: <?php echo $returnTag->getDescription(); ?>
+<?php endif; ?>
+
+<?php endif; ?>
 
 ---
 

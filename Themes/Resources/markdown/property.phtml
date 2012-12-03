@@ -13,16 +13,15 @@
 <?php
     $doc = $property->getDocComment();
 
-    $typeTag = (isset($doc) ? $doc->getFirstTag('var') : null);
+    $returnTag = (isset($doc) ? $doc->getFirstTag('var') : null);
 ?>
 
+<?php if(isset($returnTag)): ?>
 ##### Type
 
+<?php echo typeLink($this, $returnTag, (isset($reflector) ? $reflector->getName() : $this->namespaceName)); ?> 
 
-```
-<?php echo (isset($typeTag) ? $typeTag->getText() : "mixed*"); ?>
-
-```
+<?php endif; ?>
 
 ---
 
