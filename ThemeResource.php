@@ -300,21 +300,25 @@ class ThemeResource
     {
         return $this->delete($name);
     }
-    
+
     /**
      *
      * @param string $componentName
      * @param string $type
-     * @param string $originName 
-     * 
+     * @param string $originName
+     *
      * @return string
      */
-    public function url($componentName, $type, $originName = null) 
+    public function url($componentName, $type, $originName = null)
     {
+        if ($type == "namespace" && $componentName == "\\") {
+            $componentName = '\_global';
+        }
+        
         $xpl        = explode('\\', ltrim($componentName, '\\'));
         $typeName   = null;
         $url        = array();
-        
+
         if (null !== $originName) {
             $xpl2   = explode('\\', ltrim($originName, '\\'));
             $cnt    = count($xpl2);
@@ -326,32 +330,32 @@ class ThemeResource
         } else {
             array_push($url, ".");
         }
-        
+
         switch($type)
         {
             case 'namespace':
                 $typeName = 'namespaces';
                 break;
-            
+
             case 'class':
                 $typeName = 'classes';
                 break;
-            
+
             default:
                 break;
         }
-        
+
         if(empty($typeName)) {
             throw new \InvalidArgumentException(
                 '$type parameter should be either "namespace" or "class"'
             );
         }
-        
+
         array_push($url, $typeName);
         foreach ($xpl as $compt) {
             array_push($url, $compt);
         }
-        
+
         return implode('/', $url);
     }
 }

@@ -44,7 +44,7 @@ class Markdown extends AbstractTheme
     protected function generateDocIndex()
     {
         $fileName = $this->getTargetFilename($this->indexFilename);
-        echo "writing doc file: $fileName<br />";
+        echo "writing doc file: $fileName\n";
     }
 
     protected function generateNamespaceDoc($nsName)
@@ -54,7 +54,7 @@ class Markdown extends AbstractTheme
             throw new \Documentor\Exception(sprintf("Unable to prepare file directory: %s", $fileName));
         }
 
-        echo "writing doc file: $fileName ...";
+        echo "writing doc file: $fileName ... ";
         $resource = new ThemeResource(
             __DIR__ .'/Resources/markdown/namespace.phtml',
             array(
@@ -65,7 +65,7 @@ class Markdown extends AbstractTheme
         $resource->setType(ThemeResource::TYPE_NAMESPACE);
 
         file_put_contents($fileName, $resource->execute());
-        echo "ok.<br />";
+        echo "ok.\n";
     }
 
     protected function generateClassDoc(\Documentor\Reflection\ReflectionClass $class)
@@ -76,7 +76,7 @@ class Markdown extends AbstractTheme
             throw new \Documentor\Exception(sprintf("Unable to prepare file directory: %s", $fileName));
         }
 
-        echo "writing doc file: $fileName ...";
+        echo "writing doc file: $fileName ... ";
         $resource = new ThemeResource(
             __DIR__ .'/Resources/markdown/class.phtml'
         );
@@ -84,8 +84,8 @@ class Markdown extends AbstractTheme
         $resource->setType(ThemeResource::TYPE_CLASS);
         $resource->setReflector($class);
         $resource->setResolver(new \Documentor\Resolver($this->project, $class));
-        
+
         file_put_contents($fileName, $resource->execute());
-        echo "ok.<br />";
+        echo "ok.\n";
     }
 }

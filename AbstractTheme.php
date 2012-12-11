@@ -103,7 +103,7 @@ abstract class AbstractTheme implements Theme
     protected function getTargetFilename($thing, $prefix = null)
     {
         if (strpos($thing, '\\', 0) === 0) {
-            $thing = Theme::DEFAULT_NS_NAME . substr($thing, 1);
+            $thing = ($prefix == self::FOLDER_NAMESPACES ? self::DEFAULT_NS_NAME . substr($thing, 1) : substr($thing, 1));
         }
 
         return $this->targetDirectory .
@@ -160,21 +160,21 @@ abstract class AbstractTheme implements Theme
 
         return true;
     }
-    
+
     /**
      *
      * @param string $componentName
      * @param string $type
-     * @param string $originName 
-     * 
+     * @param string $originName
+     *
      * @return string
      */
-    public function url($componentName, $type, $originName = null) 
+    public function url($componentName, $type, $originName = null)
     {
         $xpl        = explode('\\', ltrim($componentName, '\\'));
         $typeName   = null;
         $url        = array();
-        
+
         if (null !== $originName) {
             $xpl2   = explode('\\', ltrim($originName, '\\'));
             $cnt    = count($xpl2);
@@ -186,32 +186,32 @@ abstract class AbstractTheme implements Theme
         } else {
             array_push($url, ".");
         }
-        
+
         switch($type)
         {
             case 'namespace':
                 $typeName = 'namespaces';
                 break;
-            
+
             case 'class':
                 $typeName = 'classes';
                 break;
-            
+
             default:
                 break;
         }
-        
+
         if(empty($typeName)) {
             throw new \InvalidArgumentException(
                 '$type parameter should be either "namespace" or "class"'
             );
         }
-        
+
         array_push($url, $typeName);
         foreach ($xpl as $compt) {
             array_push($url, $compt);
         }
-        
+
         return implode('/', $url) . '.' . $this->getFileExtension();
     }
 }

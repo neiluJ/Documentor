@@ -157,7 +157,7 @@ class Project
         $countRoot  = count(explode('\\', $ns));
         foreach ($this->classes as $className => $file) {
             $xpl = explode('\\', $className);
-            if (\strpos($className, $ns) === 0 && count($xpl) == $countRoot+1) {
+            if (\strpos($className, $ns) === 0 && (count($xpl) == $countRoot+1 || ($countRoot == 2 && count($xpl) == 2))) {
                 $interpret = new Interpret($file);
                 array_push($classes, $interpret->getClass(array_pop($xpl)));
             }
