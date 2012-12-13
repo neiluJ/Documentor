@@ -117,7 +117,7 @@ class Directory implements \IteratorAggregate
         return $this->excludes;
     }
 
-    public function setExcludes($excludes)
+    public function setExcludes(array $excludes)
     {
         $this->excludes = $excludes;
     }
@@ -144,7 +144,26 @@ class Directory implements \IteratorAggregate
 
     public function isExcluded($filePath)
     {
+        foreach ($this->excludes as $exclude) {
+            if(preg_match(self::wildcard2regex($exclude), $filePath)) {
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    /**
+     *
+     * @param string $wildcard
+     *
+     * @static
+     * @return string
+     */
+    public static function wildcard2regex($wildcard)
+    {
+        $wildcard = preg_replace('/(\*{2,})/', '*', $wildcard);
+        return '/^'. str_replace(array('*', '?'), array('.*', '.'), $wildcard). '/i';
     }
 
     /**
