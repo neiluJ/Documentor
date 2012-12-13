@@ -59,17 +59,20 @@ class Project
 
     protected $hashes;
 
-    public function __construct($name, $version)
+    protected $description;
+
+    public function __construct($name, $version, $description = null)
     {
-        $this->name     = $name;
-        $this->version  = $version;
+        $this->name         = $name;
+        $this->version      = $version;
+        $this->description  = $description;
     }
 
     /**
      *
      * @param \Documentor\Directory $directory
      *
-     * @return \Documentor\Project
+     * @return Project
      */
     public function add(Directory $directory)
     {
@@ -80,6 +83,29 @@ class Project
 
     /**
      *
+     * @param array $directories
+     *
+     * @return Project
+     */
+    public function addAll(array $directories)
+    {
+        foreach ($directories as $dir) {
+            $this->add($dir);
+        }
+
+        return $this;
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getDirectories()
+    {
+        return $this->directories;
+    }
+
+    /**
      * @return void
      */
     public function index()
@@ -195,5 +221,80 @@ class Project
         }
 
         return $nses;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function isIndexed()
+    {
+        return $this->indexed;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     *
+     * @param string $description Project's description
+     *
+     * @return Project
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     *
+     * @param string $name
+     *
+     * @return Project
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    /**
+     *
+     * @param string $version
+     *
+     * @return Project
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+
+        return $this;
     }
 }

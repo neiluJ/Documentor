@@ -1,9 +1,9 @@
 <?php
- $classes = $this->getProject()->getNamespaceClasses($this->namespaceName);
- $nsFuncs = $this->getProject()->getNamespaceFunctions($this->namespaceName);
+ $classes = $resource->getProject()->getNamespaceClasses($resource->namespaceName);
+ $nsFuncs = $resource->getProject()->getNamespaceFunctions($resource->namespaceName);
  $nsInterfaces = array();
  $nsClasses = array();
- $nses      = $this->getProject()->getNamespaceNamespaces($this->namespaceName);
+ $nses      = $resource->getProject()->getNamespaceNamespaces($resource->namespaceName);
 
  foreach($classes as $class) {
      if($class->isInterface()) {
@@ -14,13 +14,13 @@
  }
 
 ?>
-# Namespace: [<?php echo $this->namespaceName; ?>](<?php echo $this->url($this->namespaceName, 'namespace', $this->namespaceName); ?>.md)
+# Namespace: [<?php echo $resource->namespaceName; ?>](<?php echo $resource->url($resource->namespaceName, 'namespace', $resource->namespaceName); ?>.md)
 
 <?php if(count($classes)): ?>
 ## Classes
 
 <?php foreach ($nsClasses as $class): ?>
-* [<?php echo $class->getShortName(); ?>](<?php echo $this->url($class->getName(), 'class', $this->namespaceName); ?>.md)
+* [<?php echo $class->getShortName(); ?>](<?php echo $resource->url($class->getName(), 'class', $resource->namespaceName); ?>.md)
 <?php endforeach; ?>
 
 <?php endif; ?>
@@ -28,7 +28,7 @@
 ## Interfaces
 
 <?php foreach ($nsInterfaces as $class): ?>
-* [<?php echo $class->getShortName(); ?>](<?php echo $this->url($class->getName(), 'class', $this->namespaceName); ?>.md)
+* [<?php echo $class->getShortName(); ?>](<?php echo $resource->url($class->getName(), 'class', $resource->namespaceName); ?>.md)
 <?php endforeach; ?>
 
 <?php endif; ?>
@@ -53,6 +53,6 @@ foreach ($nsFuncs as $function) {
 ## Others Namespaces
 
 <?php foreach ($nses as $namespace): ?>
-* [<?php echo $namespace; ?>](<?php echo $this->url($namespace, 'namespace', $this->namespaceName); ?>.md)
+* [<?php echo $namespace; ?>](<?php echo $resource->url($namespace, 'namespace', $resource->namespaceName); ?>.md)
 <?php endforeach; ?>
 <?php endif; ?>

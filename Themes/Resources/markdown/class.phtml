@@ -1,5 +1,5 @@
 <?php
- $reflector = $this->getReflector();
+ $reflector = $resource->getReflector();
  $methods = $reflector->getMethods();
  $properties = array();
 
@@ -14,12 +14,12 @@
  $doc = $reflector->getDocComment();
  $parent = $reflector->getParentClass();
 
- $hmethods = $this->resolver->heritedMethods();
- $interfaces = $this->resolver->implementedInterfaces();
+ $hmethods = $resource->getResolver()->heritedMethods();
+ $interfaces = $resource->getResolver()->implementedInterfaces();
 
  ksort($methods, SORT_ASC);
 ?>
-# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](<?php echo $this->url($reflector->getNamespaceName(), 'namespace', $reflector->getName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](<?php echo $this->url($reflector->getName(), 'class', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo displayLinkOrClassname($this, $parent, $reflector->getName()); ?> <?php endif; ?>
+# <?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: [<?php echo $reflector->getNamespaceName(); ?>](<?php echo $resource->url($reflector->getNamespaceName(), 'namespace', $reflector->getName()); ?>.md) \ [<?php echo $reflector->getShortName(); ?>](<?php echo $resource->url($reflector->getName(), 'class', $reflector->getName()); ?>.md) <?php if(isset($parent)): ?>extends <?php echo displayLinkOrClassname($resource, $parent, $reflector->getName()); ?> <?php endif; ?>
 
 <?php
 if(isset($doc)) {
@@ -30,7 +30,7 @@ if(isset($doc)) {
 
 ### Implemented Interfaces
 <?php foreach ($interfaces as $int): ?>
-* <?php echo displayLinkOrClassname($this, $int, $reflector->getName()); ?>
+* <?php echo displayLinkOrClassname($resource, $int, $reflector->getName()); ?>
 <?php endforeach; ?>
 
 <?php endif; ?>
@@ -57,7 +57,7 @@ Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?><?
 <?php endforeach; ?>
 <?php foreach ($hmethods as $hclass => $hhmethods): ?>
 <?php if (!count($hhmethods)) { continue; } ?>
-* Herited from <?php echo displayLinkOrClassname($this, $hclass, $reflector->getName()); ?>: <?php foreach ($hhmethods as $function): ?>[<?php echo $function->getShortName(); ?>](<?php echo $this->url($hclass, 'class', $reflector->getName()); ?>.md#<?php echo strtolower($function->getShortName()); ?>), <?php endforeach; ?>
+* Herited from <?php echo displayLinkOrClassname($resource, $hclass, $reflector->getName()); ?>: <?php foreach ($hhmethods as $function): ?>[<?php echo $function->getShortName(); ?>](<?php echo $resource->url($hclass, 'class', $reflector->getName()); ?>.md#<?php echo strtolower($function->getShortName()); ?>), <?php endforeach; ?>
 <?php endforeach; ?>
 
 <?php endif; ?>

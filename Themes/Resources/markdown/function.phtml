@@ -31,7 +31,7 @@
 ##### Returns
 
 <?php if(isset($returnTag)): ?>
-Type: <?php echo typeLink($this, $returnTag, (isset($reflector) ? $reflector->getName() : $this->namespaceName)); ?> 
+Type: <?php echo typeLink($resource, $returnTag, (isset($reflector) ? $reflector->getName() : $resource->namespaceName)); ?>
 
 <?php if(strlen($returnTag->getDescription())): ?>
 Description: <?php echo $returnTag->getDescription(); ?>

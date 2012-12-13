@@ -32,31 +32,190 @@
  */
 namespace Documentor;
 
+use Documentor\Reflection\ReflectionClass;
+
 /**
- * @category Interfaces
+ * @category Library
  * @package  Documentor
  * @author   Julien Ballestracci <julien@nitronet.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link     http://github.com/neiluj/Documentor
  */
-interface Theme
+class Theme
 {
-    const DEFAULT_NS_NAME = '_global';
-
+    const DEFAULT_NS_NAME   = '_global';
     const FOLDER_NAMESPACES = 'namespaces';
     const FOLDER_CLASSES    = 'classes';
 
-    public function __construct(Project $project, $targetDirectory);
+    /**
+     * @var ThemeType
+     */
+    protected $type;
 
-    public function getFileExtension();
+    /**
+     * Constructor
+     *
+     * @param ThemeType $type
+     *
+     * @return void
+     */
+    public function __construct(ThemeType $type)
+    {
+        $this->type = $type;
+    }
 
-    public function setFileExtension($ext);
+    /**
+     *
+     * @return ThemeType
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
 
-    public function generate();
+    /**
+     *
+     * @param ThemeType $type
+     *
+     * @return Theme
+     */
+    public function setType(ThemeType $type)
+    {
+        $this->type = $type;
 
-    public function urlClass($className);
+        return $this;
+    }
 
-    public function urlNamespace($namespaceName);
+    /**
+     *
+     * @param string $nsName
+     * @param \Documentor\Project $project
+     *
+     * @return string
+     */
+    public function documentationNamespace($nsName, Project $project)
+    {
+        return $this
+            ->getType()
+            ->generate(
+                ThemeResource::factory(array('namespaceName' => $nsName))
+                ->setProject($project)
+                ->setType(ThemeResource::TYPE_NAMESPACE)
+            );
+    }
 
-    public function urlFunction($funcName);
+    /**
+     *
+     * @param ReflectionClass $class
+     * @param Project $project
+     *
+     * @return string
+     */
+    public function documentationClass(ReflectionClass $class,
+        Project $project
+    ) {
+        return $this
+            ->getType()
+            ->generate(
+                ThemeResource::factory()
+                ->setProject($project)
+                ->setType(ThemeResource::TYPE_CLASS)
+                ->setReflector($class)
+                ->setResolver(new Resolver($project, $class))
+             );
+    }
+
+    public function documentationIndex(Project $project)
+    {
+        return $this
+            ->getType()
+            ->generate(
+                ThemeResource::factory()
+                ->setProject($project)
+                ->setType(ThemeResource::TYPE_INDEX)
+            );
+    }
+
+
+    public function write(Project $project, $targetDirectory)
+    {
+        $this->prepareTargetDirectory($targetDirectory);
+
+        foreach ($project->getNamespaces() as $nsName) {
+            $fileName = $this->getTargetFilename($targetDirectory, $nsName, self::FOLDER_NAMESPACES);
+            if (!$this->prepareDocFile($fileName)) {
+                throw new \Documentor\Exception(
+                    sprintf("Unable to prepare file directory: %s", $fileName)
+                );
+            }
+
+            file_put_contents($fileName, $this->documentationNamespace($nsName, $project));
+
+            foreach ($project->getNamespaceClasses($nsName) as $class) {
+                $className = $class->getName();
+                $fileName = $this->getTargetFilename($targetDirectory, $className, self::FOLDER_CLASSES);
+                if (!$this->prepareDocFile($fileName)) {
+                    throw new \Documentor\Exception(
+                        sprintf("Unable to prepare file directory: %s", $fileName)
+                    );
+                }
+
+                file_put_contents($fileName, $this->documentationClass($class, $project));
+            }
+        }
+
+        // $this->generateDocIndex();
+
+        return true;
+    }
+
+    protected function getTargetFilename($targetDirectory, $thing, $prefix = null)
+    {
+        if (strpos($thing, '\\', 0) === 0) {
+            $thing = ($prefix == self::FOLDER_NAMESPACES ? self::DEFAULT_NS_NAME . substr($thing, 1) : substr($thing, 1));
+        }
+
+        return $targetDirectory .
+                DIRECTORY_SEPARATOR .
+                (!is_null($prefix) ? $prefix . DIRECTORY_SEPARATOR : null) .
+                str_replace('\\', DIRECTORY_SEPARATOR, $thing) .
+                '.'. $this->getType()->getFilesExtension();
+    }
+
+    protected function prepareTargetDirectory($targetDirectory)
+    {
+        if (!is_dir($targetDirectory)) {
+           if (!mkdir($targetDirectory, 0777, true)) {
+               throw new Exception(
+                    sprintf(
+                         "Unable to create documentation directory: %s",
+                         $targetDirectory
+                    )
+               );
+           }
+        }
+
+        return true;
+    }
+
+    protected function prepareDocFile($filePath)
+    {
+        $dir = dirname($filePath);
+        if (!is_dir($dir)) {
+           if (!mkdir($dir, 0777, true)) {
+               throw new Exception(
+                    sprintf(
+                         "Unable to create documentation directory: %s",
+                         $dir
+                    )
+               );
+           }
+        }
+
+        if (is_file($filePath)) {
+            unlink($filePath);
+        }
+
+        return true;
+    }
 }

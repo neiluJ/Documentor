@@ -19,7 +19,7 @@
 <?php if(isset($returnTag)): ?>
 ##### Type
 
-<?php echo typeLink($this, $returnTag, (isset($reflector) ? $reflector->getName() : $this->namespaceName)); ?> 
+<?php echo typeLink($resource, $returnTag, (isset($reflector) ? $reflector->getName() : $resource->namespaceName)); ?>
 
 <?php endif; ?>
 

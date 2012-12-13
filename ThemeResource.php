@@ -32,7 +32,8 @@
  */
 namespace Documentor;
 
-use Documentor\Reflector, Documentor\Project;
+use Documentor\Reflector,
+    Documentor\Project;
 
 /**
  * @category Library
@@ -43,9 +44,9 @@ use Documentor\Reflector, Documentor\Project;
  */
 class ThemeResource
 {
-    const TYPE_NAMESPACE = 'ns';
-    const TYPE_CLASS    = 'class';
-    const TYPE_FUNCTION = 'func';
+    const TYPE_NAMESPACE   = 'ns';
+    const TYPE_CLASS       = 'class';
+    const TYPE_INDEX       = 'index';
 
     /**
      * @var string
@@ -68,13 +69,6 @@ class ThemeResource
     protected $reflector;
 
     /**
-     * Path to resource file
-     *
-     * @var string
-     */
-    protected $resource;
-
-    /**
      * @var array
      */
     protected $options = array();
@@ -86,26 +80,9 @@ class ThemeResource
      * @return void
      * @throws Exception
      */
-    public function __construct($resource, array $options = array())
+    public function __construct(array $options = array())
     {
-        if (!is_file($resource)) {
-            throw new Exception(sprintf("Invalid resource file '%s'", $resource));
-        }
-
-        $this->resource = $resource;
         $this->options  = $options;
-    }
-
-    /**
-     *
-     * @return string
-     */
-    public function execute()
-    {
-        ob_start();
-        include $this->resource;
-        $contents = ob_get_clean();
-        return $contents;
     }
 
     /**
@@ -123,11 +100,22 @@ class ThemeResource
      *
      * @param string $type
      *
-     * @return void
+     * @return ThemeResource
      */
     public function setType($type)
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 
     /**
@@ -143,25 +131,36 @@ class ThemeResource
      *
      * @param Project $project
      *
-     * @return void
+     * @return ThemeResource
      */
     public function setProject(Project $project)
     {
         $this->project = $project;
+
+        return $this;
     }
 
+    /**
+     * @return Resolver
+     */
     public function getResolver()
     {
         return $this->resolver;
     }
 
-    public function setResolver($resolver)
+    /**
+     * @param Resolver $resolver
+     *
+     * @return ThemeResource
+     */
+    public function setResolver(Resolver $resolver)
     {
         $this->resolver = $resolver;
+
+        return $this;
     }
 
     /**
-     *
      * @return boolean
      */
     public function hasReflector()
@@ -180,34 +179,15 @@ class ThemeResource
 
     /**
      *
-     * @return string
-     */
-    public function getResource()
-    {
-        return $this->resource;
-    }
-
-    /**
-     *
-     * @param string $resource
-     *
-     * @return void
-     */
-    public function setResource($resource)
-    {
-        $this->resource = $resource;
-    }
-
-
-    /**
-     *
      * @param \Documentor\Reflector $reflector
      *
-     * @return void
+     * @return ThemeResource
      */
     public function setReflector(Reflector $reflector)
     {
         $this->reflector = $reflector;
+
+        return $this;
     }
 
     /**
@@ -231,7 +211,7 @@ class ThemeResource
      * @param string $key
      * @param mixed $value
      *
-     * @return Object
+     * @return ThemeResource
      */
     public function set($key, $value)
     {
@@ -245,7 +225,7 @@ class ThemeResource
      *
      * @param array $values Keys/Values to be set
      *
-     * @return Object
+     * @return ThemeResource
      */
     public function setMulti(array $values)
     {
@@ -264,7 +244,6 @@ class ThemeResource
      */
     public function has($key)
     {
-
         return array_key_exists($key, $this->options);
     }
 
@@ -272,7 +251,7 @@ class ThemeResource
      *
      * @param string $key
      *
-     * @return Object
+     * @return ThemeResource
      */
     public function delete($key)
     {
@@ -314,7 +293,7 @@ class ThemeResource
         if ($type == "namespace" && $componentName == "\\") {
             $componentName = '\_global';
         }
-        
+
         $xpl        = explode('\\', ltrim($componentName, '\\'));
         $typeName   = null;
         $url        = array();
@@ -357,5 +336,16 @@ class ThemeResource
         }
 
         return implode('/', $url);
+    }
+
+    /**
+     *
+     * @param array $options
+     * 
+     * @return ThemeResource
+     */
+    public static function factory(array $options = array())
+    {
+        return new self($options);
     }
 }
