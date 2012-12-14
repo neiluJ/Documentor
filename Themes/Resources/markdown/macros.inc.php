@@ -3,7 +3,7 @@
 use Documentor\ThemeResource;
 use Documentor\Tags\ReturnTag;
 
-function displayLinkOrClassname(ThemeResource $resource, $className, 
+function displayLinkOrClassname(ThemeResource $resource, $className,
     $origin = null
 ) {
     $className = $resource->getResolver()->resolveClassName($className);
@@ -73,7 +73,7 @@ function isInternalType($typeName)
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -87,16 +87,16 @@ function getInternalTypeInfos($typeName)
             return $infos;
         }
     }
-    
+
     return null;
 }
 
-function typeLink(ThemeResource $resource, ReturnTag $returnTag, 
+function typeLink(ThemeResource $resource, ReturnTag $returnTag,
     $origin = null
 ) {
     $types  = $returnTag->getTypes();
     $ret    = array();
-    
+
     foreach ($types as $typeName) {
         if (isInternalType($typeName)) {
             $infos = getInternalTypeInfos($typeName);
@@ -111,13 +111,25 @@ function typeLink(ThemeResource $resource, ReturnTag $returnTag,
                 $infos = array('name' => $typeName, 'link' => null);
             }
         }
-        
+
         if ($infos['link'] != null && !empty($infos['link'])) {
             array_push($ret, sprintf("[%s](%s)", $infos['name'], $infos['link']));
         } else {
             array_push($ret, $infos['name']);
         }
     }
-    
+
     return implode('|', $ret);
+}
+
+function getNamespaceName($thing)
+{
+    if(!strpos($thing, '\\')) {
+        return '\\';
+    }
+
+    $expl = explode('\\', $thing);
+    array_pop($expl);
+
+    return implode('\\', $expl);
 }

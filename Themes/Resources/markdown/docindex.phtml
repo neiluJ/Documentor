@@ -1,0 +1,36 @@
+<?php
+ $project = $resource->getProject();
+ $nses = $project->getNamespaces();
+ $classes = $project->getClasses();
+ $funcs = $project->getFunctions();
+?>
+# <?php echo $project->getName(); ?> <?php echo $project->getVersion(); ?> API Documentation
+
+<?php echo $project->getDescription(); ?>
+
+*This documentation was generated on <?php echo date('r'); ?>*
+
+<?php if(count($nses)): ?>
+## Namespaces overview
+
+<?php foreach ($nses as $namespace): ?>
+* [<?php echo $namespace; ?>](<?php echo $resource->url($namespace, 'namespace'); ?>.md)
+<?php endforeach; ?>
+<?php endif; ?>
+
+<?php if(count($classes)): ?>
+## Classes overview
+
+<?php foreach ($classes as $className => $file): ?>
+* [<?php echo $className; ?>](<?php echo $resource->url($className, 'class'); ?>.md)
+<?php endforeach; ?>
+<?php endif; ?>
+
+<?php if(count($funcs)): ?>
+## Functions overview
+
+<?php foreach ($funcs as $funcName => $file): ?>
+* [<?php echo $funcName; ?>](<?php echo $resource->url(getNamespaceName($funcName), 'namespace'); ?>.md#<?php echo ltrim(strtolower($funcName), '\\') ?>)
+<?php endforeach; ?>
+<?php endif; ?>
+

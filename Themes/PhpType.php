@@ -1,7 +1,8 @@
 <?php
 namespace Documentor\Themes;
 
-use Documentor\ThemeType;
+use Documentor\ThemeType,
+    Documentor\ThemeResource;
 
 class PhpType implements ThemeType
 {
@@ -50,10 +51,11 @@ class PhpType implements ThemeType
     }
 
     /**
-     *
+     * @param ThemeResource $resource
+     * 
      * @return string
      */
-    public function generate(\Documentor\ThemeResource $resource)
+    public function generate(ThemeResource $resource)
     {
         if ($resource->isType(\Documentor\ThemeResource::TYPE_CLASS)) {
             $file = 'class.phtml';

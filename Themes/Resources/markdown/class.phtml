@@ -58,6 +58,7 @@ Summary: <?php if(count($consts)): ?>[Constants](#constants) - <?php endif; ?><?
 <?php foreach ($hmethods as $hclass => $hhmethods): ?>
 <?php if (!count($hhmethods)) { continue; } ?>
 * Herited from <?php echo displayLinkOrClassname($resource, $hclass, $reflector->getName()); ?>: <?php foreach ($hhmethods as $function): ?>[<?php echo $function->getShortName(); ?>](<?php echo $resource->url($hclass, 'class', $reflector->getName()); ?>.md#<?php echo strtolower($function->getShortName()); ?>), <?php endforeach; ?>
+
 <?php endforeach; ?>
 
 <?php endif; ?>

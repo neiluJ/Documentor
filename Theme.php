@@ -164,7 +164,8 @@ class Theme
             }
         }
 
-        // $this->generateDocIndex();
+        $fileName = $this->getTargetFilename($targetDirectory, $this->getType()->getIndexFilename());
+        file_put_contents($fileName, $this->documentationIndex($project));
 
         return true;
     }
