@@ -320,17 +320,27 @@ class ThemeResource
                 $typeName = 'classes';
                 break;
 
+            case 'assets':
+                $typeName = 'assets';
+                break;
+
+            case 'index':
+                $typeName = 'index';
+                break;
+
             default:
                 break;
         }
 
         if(empty($typeName)) {
             throw new \InvalidArgumentException(
-                '$type parameter should be either "namespace" or "class"'
+                '$type parameter should be either "namespace" "assets" or "class"'
             );
         }
 
-        array_push($url, $typeName);
+        if ($typeName !== "index") {
+            array_push($url, $typeName);
+        }
         foreach ($xpl as $compt) {
             array_push($url, $compt);
         }
@@ -341,7 +351,7 @@ class ThemeResource
     /**
      *
      * @param array $options
-     * 
+     *
      * @return ThemeResource
      */
     public static function factory(array $options = array())

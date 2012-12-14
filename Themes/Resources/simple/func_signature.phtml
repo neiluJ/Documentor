@@ -1,0 +1,11 @@
+<?php $params = $function->getParameters(); foreach ($params as $idx => $param): ?>
+<span style="font-family: Courier, serif; font-size:12px;"></span>
+<span style="color: #212121">$<?php echo $param->getName(); ?></span>
+<?php
+$default = $param->getDefaultValue();
+if(!empty($default)):
+?>
+<span style="font-style:italic; color: #999999;">= <?php echo htmlspecialchars($default); ?></span>
+<?php endif; ?>
+<?php if($idx < count($params)-1): ?>, <?php endif; ?>
+<?php endforeach; ?>

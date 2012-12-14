@@ -1,0 +1,127 @@
+<?php
+$reflector = $resource->getReflector();
+ $PAGE_TITLE = ($reflector->isInterface() ? 'Interface' : 'Class') .': '. $reflector->getName();
+ $PAGE_ORIGIN = $reflector->getName();
+
+ $project = $resource->getProject();
+
+ include __DIR__ .'/includes/header.phtml';
+
+ $methods = $reflector->getMethods();
+ $properties = array();
+
+ if (!$reflector->isInterface()) {
+    $properties = $reflector->getProperties();
+    ksort($properties, SORT_ASC);
+ }
+
+ $consts = $reflector->getConstants();
+ $doc = $reflector->getDocComment();
+ $parent = $reflector->getParentClass();
+
+ $hmethods = $resource->getResolver()->heritedMethods();
+ $interfaces = $resource->getResolver()->implementedInterfaces();
+
+ ksort($methods, SORT_ASC);
+?>
+<h2><?php echo ($reflector->isInterface() ? 'Interface' : 'Class'); ?>: <a href="<?php echo $resource->url($reflector->getNamespaceName(), 'namespace', $PAGE_ORIGIN); ?>.html"><?php echo $reflector->getNamespaceName(); ?></a>\<a href="<?php echo $resource->url($reflector->getName(), 'class', $PAGE_ORIGIN); ?>.html"><?php echo $reflector->getShortName(); ?></a> <?php if(isset($parent)): ?>extends <?php echo displayLinkOrClassname($resource, $parent, $reflector->getName()); ?> <?php endif; ?></h2>
+
+<ul id="summary">
+    <li style="list-style:none;"><h5>Summary</h5></li>
+    <li><a href="#infos">Informations</a></li>
+    <?php if(count($interfaces)): ?>
+    <li><a href="#implementations">Implémentations</a></li>
+    <?php endif; ?>
+    <?php if(count($methods)): ?>
+    <li><a href="#methods">Methodes</a></li>
+    <?php endif; ?>
+    <?php if(count($hmethods)): ?>
+     <li><a href="#herited">Methodes héritées</a></li>
+    <?php endif; ?>
+     <!--
+    {% if reflector.isAbstract and childrens.length > 0 %}
+    <li><a href="#childrens">Classes filles</a></li>
+    {% endif %}
+     -->
+    <?php if(count($properties)): ?>
+    <li><a href="#attributes">Attributs</a></li>
+    <?php endif; ?>
+    <?php if(count($consts)): ?>
+    <li><a href="#constants">Constantes</a></li>
+    <?php endif; ?>
+</ul>
+
+
+<h3><a name="infos"></a>Informations</h3>
+
+<?php
+if(isset($doc)) {
+    echo htmlspecialchars($doc->getComment());
+}
+?>
+<div style="clear:both"></div>
+
+<?php if(count($interfaces)): ?>
+<h3><a name="implementations"></a>Implemented Interfaces</h3>
+
+<ul>
+    <?php foreach($interfaces as $interface): ?>
+    <li><?php echo displayLinkOrClassname($resource, $interface, $reflector->getName()); ?></li>
+    <?php endforeach; ?>
+</ul>
+<p><a href="#top" style="color: #666;">Back to top</a></p>
+<?php endif; ?>
+
+
+<?php if(count($consts)): ?>
+<h3><a name="constants"></a>Constants</h3>
+
+<ul>
+    <?php foreach ($consts as $constant): ?>
+    <li><code><?php echo $constant->getName(); ?></code></li>
+    <?php endforeach; ?>
+</ul>
+<p><a href="#top" style="color: #666;">Back to top</a></p>
+<?php endif; ?>
+
+
+<?php if(count($methods)): ?>
+<h3><a name="methods"></a>Méthodes</h3>
+<ul class="methods">
+    <?php
+foreach ($methods as $function) {
+    include __DIR__ .'/function.phtml';
+}
+?>
+</ul>
+<p><a href="#top" style="color: #666;">Back to top</a></p>
+<?php endif; ?>
+
+<?php if(count($hmethods)): ?>
+<a name="herited"></a>
+<?php foreach ($hmethods as $hclass => $hhmethods): ?>
+    <h3>Méthodes héritées de <?php echo displayLinkOrClassname($resource, $hclass, $reflector->getName()); ?></h3>
+    <p>
+    <?php foreach ($hhmethods as $function): ?>
+        <a href="<?php echo $resource->url($hclass, 'class', $PAGE_ORIGIN); ?>.html#method-<?php echo strtolower($function->getShortName()); ?>"><?php echo $function->getShortName(); ?></a>,
+    <?php endforeach; ?>
+    </p>
+<?php endforeach; ?>
+<p><a href="#top" style="color: #666;">Back to top</a></p>
+<?php endif; ?>
+
+<?php if (!$reflector->isInterface() && isset($properties) && count($properties)): ?>
+<h3><a name="attributes"></a>Attributes</h3>
+<ul class="methods">
+    <?php
+foreach ($properties as $property) {
+    include __DIR__ .'/property.phtml';
+}
+?>
+</ul>
+<p><a href="#top" style="color: #666;">Back to top</a></p>
+<?php endif; ?>
+
+<?php
+ include __DIR__ .'/includes/footer.phtml';
+?>

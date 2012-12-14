@@ -1,0 +1,50 @@
+<?php
+ $PAGE_TITLE = 'Index';
+ $PAGE_ORIGIN = null;
+
+ $project = $resource->getProject();
+ $nses = $project->getNamespaces();
+ $classes = $project->getClasses();
+ $funcs = $project->getFunctions();
+
+ include __DIR__ .'/includes/header.phtml';
+?>
+
+<h2><?php echo $project->getName(); ?> <?php echo $project->getVersion(); ?> API Documentation</h2>
+
+<?php echo $project->getDescription(); ?>
+
+<hr />
+<?php if(count($nses)): ?>
+<h2>Namespaces overview</h2>
+
+<ul>
+<?php foreach ($nses as $namespace): ?>
+    <li><a href="<?php echo $resource->url($namespace, 'namespace'); ?>.html"><?php echo $namespace; ?></a></li>
+<?php endforeach; ?>
+</ul>
+<?php endif; ?>
+
+<?php if(count($classes)): ?>
+<h2>Classes overview</h2>
+
+<ul>
+<?php foreach ($classes as $className => $file): ?>
+    <li><a href="<?php echo $resource->url($className, 'class'); ?>.html"><?php echo $className; ?></a></li>
+<?php endforeach; ?>
+</ul>
+<?php endif; ?>
+
+<?php if(count($funcs)): ?>
+<h2>Functions overview</h2>
+
+<ul>
+<?php foreach ($funcs as $funcName => $file): ?>
+    <li><a href="<?php echo $resource->url(getNamespaceName($funcName), 'namespace'); ?>.html#<?php echo ltrim(strtolower($funcName), '\\') ?>"><?php echo $funcName; ?></a></li>
+<?php endforeach; ?>
+</ul>
+<?php endif; ?>
+
+<?php
+ include __DIR__ .'/includes/footer.phtml';
+?>

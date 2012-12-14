@@ -1,0 +1,75 @@
+<?php
+ $PAGE_TITLE = 'Namespace: '. $resource->namespaceName;
+ $PAGE_ORIGIN = $resource->namespaceName;
+
+ $project = $resource->getProject();
+
+ include __DIR__ .'/includes/header.phtml';
+
+ $classes = $project->getNamespaceClasses($resource->namespaceName);
+ $nsFuncs = $project->getNamespaceFunctions($resource->namespaceName);
+ $nsInterfaces = array();
+ $nsClasses = array();
+ $nses      = $project->getNamespaceNamespaces($resource->namespaceName);
+
+ foreach($classes as $class) {
+     if($class->isInterface()) {
+         $nsInterfaces[$class->getShortName()] = $class;
+     } else {
+         $nsClasses[$class->getShortName()] = $class;
+     }
+ }
+
+?>
+<h2>Namespace: <a href="<?php echo $resource->url($resource->namespaceName, 'namespace', $resource->namespaceName); ?>.html"><?php echo $resource->namespaceName; ?></a></h2>
+
+<?php if(count($classes)): ?>
+<h3>Classes</h3>
+
+<ul>
+<?php foreach ($nsClasses as $class): ?>
+    <li><a href="<?php echo $resource->url($class->getName(), 'class', $resource->namespaceName); ?>.html"><?php echo $class->getShortName(); ?></a></li>
+<?php endforeach; ?>
+</ul>
+
+<?php endif; ?>
+<?php if(count($nsInterfaces)): ?>
+<h3>Interfaces</h3>
+
+<ul>
+<?php foreach ($nsInterfaces as $class): ?>
+    <li><a href="<?php echo $resource->url($class->getName(), 'class', $resource->namespaceName); ?>.html"><?php echo $class->getShortName(); ?></a></li>
+<?php endforeach; ?>
+</ul>
+
+<?php endif; ?>
+<?php if (count($nsFuncs)): ?>
+<h3>Functions</h3>
+
+<ul>
+<?php foreach ($nsFuncs as $function): ?>
+    <li><a href="#<?php echo strtolower($function->getShortName()); ?>"><?php echo $function->getShortName(); ?></a></li>
+<?php endforeach; ?>
+</ul>
+
+<hr />
+
+<?php
+foreach ($nsFuncs as $function) {
+    include __DIR__ .'/function.phtml';
+}
+?>
+<?php endif; ?>
+
+<?php if (count($nses)): ?>
+<h3>Others Namespaces</h3>
+
+<ul>
+<?php foreach ($nses as $namespace): ?>
+    <li><a href="<?php echo $resource->url($namespace, 'namespace', $resource->namespaceName); ?>.html"><?php echo $namespace; ?></a></li>
+<?php endforeach; ?>
+</ul>
+<?php endif; ?>
+<?php
+ include __DIR__ .'/includes/footer.phtml';
+?>

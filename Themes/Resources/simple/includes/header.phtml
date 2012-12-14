@@ -1,0 +1,82 @@
+<?php
+require_once __DIR__ .'/../macros.inc.php';
+$project = $resource->getProject();
+$nses = $project->getNamespaces();
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en_US" xml:lang="en_US">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="Content-style-type" content="text/css" />
+        <meta http-equiv="Content-script-type" content="text/javascript" />
+        <meta http-equiv="Content-language" content="en" />
+        <title><?php echo $PAGE_TITLE; ?> - <?php echo $project->getName(); ?> <?php echo $project->getVersion(); ?> API Documentation</title>
+        <link rel="stylesheet" href="<?php echo $resource->url('css/blueprint/screen.css', 'assets', $PAGE_ORIGIN); ?>" type="text/css" media="screen, projection" />
+        <link rel="stylesheet" href="<?php echo $resource->url('css/blueprint/print.css', 'assets', $PAGE_ORIGIN); ?>" type="text/css" media="print" />
+        <!--[if lt IE 8]><link rel="stylesheet" href="<?php echo $resource->url('css/blueprint/ie.css', 'assets', $PAGE_ORIGIN); ?>" type="text/css" media="screen, projection" /><![endif]-->
+        <link rel="stylesheet" href="<?php echo $resource->url('css/style.css', 'assets', $PAGE_ORIGIN); ?>" type="text/css" media="screen, print" />
+        <script language="JavaScript" type="text/javascript" src="<?php echo $resource->url('js/mootools-min.js', 'assets', $PAGE_ORIGIN); ?>"></script>
+        <script language="JavaScript" type="text/javascript" src="<?php echo $resource->url('js/documentor.js', 'assets', $PAGE_ORIGIN); ?>"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div id="header" class="span-24 last">
+                <div class="span-16">
+                    <h1><a name="top" href="<?php echo $resource->url('index', 'index', $PAGE_ORIGIN); ?>.html"><?php echo $resource->getProject()->getName(); ?> <?php echo $resource->getProject()->getVersion(); ?> Documentation</a></h1>
+                </div>
+                <div class="span-8 last" style="text-align:right;">
+                    <form action="" method="get">
+                        <p><label for="namespace">Namespaces</label>
+                            <select name="namespace" id="namespace" onchange="form.submit()">
+                                <option value="">&nbsp;</option>
+                                <?php foreach($nses as $namespace): ?>
+                                    <option value="<?php echo $namespace; ?>"><?php echo $namespace; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div id="bar" class="container">
+            <div class="span-16">
+<?php
+$hasReflector = ($resource->getReflector() instanceof Documentor\Reflector);
+$reflector = $resource->getReflector();
+?>
+                <ul>
+                    <li<?php if(!$hasReflector && empty($resource->namespaceName)): ?> class="last"<?php endif; ?>><a href="<?php echo $resource->url('index', 'index', $PAGE_ORIGIN); ?>.html">Index</a></li>
+                    <?php if($hasReflector): ?>
+                    <li>&rsaquo;</li>
+                    <li><a href="<?php echo $resource->url($reflector->getNamespaceName(), 'namespace', $PAGE_ORIGIN); ?>.html"><?php echo $reflector->getNamespaceName(); ?></a></li>
+                    <li>&rsaquo;</li>
+                    <li class="last"><a href="<?php echo $resource->url($reflector->getName(), 'class', $PAGE_ORIGIN); ?>.html"><?php echo $reflector->getShortName(); ?></a></li>
+                    <?php elseif(!empty($resource->namespaceName)): ?>
+                    <li>&rsaquo;</li>
+                    <li class="last"><a href="<?php echo $resource->url($resource->namespaceName, 'namespace', $PAGE_ORIGIN); ?>.html"><?php echo $resource->namespaceName; ?></a></li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+            <div class="span-7 last" style="text-align:right; padding:0;">
+                <form action="./" method="get" style="display: inline-block; padding:0;margin:0; text-align:right;">
+                    <p style="display:inline;">
+                        <input tabindex="1" style="border:solid 1px #ccc; display: inline; padding:3px; font-size:12px; width:200px; margin:0;" type="text" name="q" id="search" value="" />
+                    </p>
+                </form>
+            </div>
+        </div>
+        <div class="container">
+            <div id="side" class="span-6">
+                <?php if($hasReflector): ?>
+                <h3><?php echo $reflector->getNamespaceName(); ?></h3>
+                <?php nsTree($resource, $reflector->getNamespaceName(), $reflector->getName(), $PAGE_ORIGIN); ?>
+                <?php elseif(!empty($resource->namespaceName)): ?>
+                <h3><?php echo $resource->namespaceName; ?></h3>
+                <?php nsTree($resource, $resource->namespaceName, null, $PAGE_ORIGIN); ?>
+                <?php else: ?>
+                <h3>Documentation</h3>
+                <?php nsTree($resource, null, null, $PAGE_ORIGIN); ?>
+               <?php endif; ?>
+            </div>
+            <div id="contents" class="span-18 last">

@@ -1,0 +1,129 @@
+#header {
+	display: block;
+	height: 100px;
+}
+#header h1 {
+	line-height:100px;
+}
+#header form {
+	margin-top: 40px;
+}
+#bar {
+	display: block;
+	background: #eee;
+	padding: 5px 0px;
+	margin-bottom: 20px;
+	line-height:24px;
+}
+#bar>div {
+	padding: 0 15px;
+}
+#bar ul {
+	display: inline-block;
+	margin: 0;
+	padding:0;
+	list-style:none;
+	list-style-type:none;
+}
+#bar ul li  { display: inline; margin-right: 10px; }
+#bar ul li a {
+	color: #666;
+}
+#bar ul li a:hover {
+	text-decoration: none;
+}
+#bar ul li.last a {
+	color: #333;
+	text-decoration:none;
+}
+ul.cpnlist {
+    display: block;
+    list-style: none;
+    list-style-type: none;
+    padding: 0;
+}
+ul.cpnlist li {
+    display: block;
+    margin: 0;
+    padding: 0;
+    line-height: 20px;
+}
+ul.cpnlist li ul li {
+    padding-left: 15px;
+}
+
+ul.cpnlist li.ns {
+    padding-left: 22px;
+    background: transparent url(../images/eclipse/package_obj.gif) left top no-repeat;
+}
+ul.cpnlist li.class {
+    padding-left: 22px;
+    background: transparent url(../images/eclipse/class_obj.gif) left center no-repeat;
+}
+ul.cpnlist li.interface {
+    padding-left: 22px;
+    background: transparent url(../images/eclipse/int_obj.gif) left center no-repeat;
+}
+
+ul.methods {
+    list-style:none;
+    list-style-type:none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    display: block;
+}
+
+ul.methods li {
+    display: block;
+    margin:0;
+    padding:0;
+}
+ul.methods li h5 {
+    display: block;
+    font-weight: normal;
+    padding: 5px 10px;
+    background-color: #eee;
+    font-size: 16px;
+    margin-bottom: 0px;
+    border-bottom: solid 1px #ccc;
+    cursor: pointer;
+}
+ul.methods li div.contents {
+    margin-top: 20px;
+}
+ul.methods li.public h5 {
+    border-left: solid 2px green;
+}
+ul.methods li.private h5 {
+    border-left: solid 2px red;
+}
+ul.methods li.protected h5 {
+    border-left: solid 2px orange;
+}
+ul.methods li h5 span.extra {
+    float:right;
+    font-size: 14px;
+    vertical-align: middle;
+    color: #666;
+    font-weight:normal;
+    font-variant: small-caps;
+    margin-left: 10px;
+}
+p.file {
+    line-height: 24px;
+    background: transparent url(../images/page_white_php.png) left center no-repeat;
+    padding-left: 20px;
+    margin: 0 0 20px 0;
+}
+h2 {
+    margin-bottom: 0px;
+}
+ul#summary {
+    display: block;
+    width: 180px;
+    background-color: #dff4ff;
+    float:right;
+    margin-right:0;
+    padding: 10px 15px;
+    list-style-position: inside;
+}

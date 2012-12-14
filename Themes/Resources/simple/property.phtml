@@ -1,0 +1,31 @@
+<li class="<?php echo $property->getVisibility(); ?>">
+    <h5><a name="attribute-<?php echo strtolower($property->getName()); ?>"></a>
+        <!-- (@return) -->
+        <span style="width: 70px;color:#666;display:inline-block;"><?php echo $property->getVisibility(); ?></span>
+        <span style="font-weight:bold;min-width: 110px;display:inline-block;">$<?php echo $property->getName(); ?></span>
+        <?php if($property->isStatic()): ?><span class="extra">static</span><?php endif; ?>
+    </h5>
+
+    <div class="contents">
+
+
+<?php if ($property->getDocComment() !== null): ?>
+<?php echo strip_tags($property->getDocComment()->getComment()); ?>
+
+<?php endif; ?>
+
+<?php
+    $doc = $property->getDocComment();
+
+    $returnTag = (isset($doc) ? $doc->getFirstTag('var') : null);
+?>
+
+<?php if(isset($returnTag)): ?>
+<h4>Type</h4>
+
+<?php echo typeLink($resource, $returnTag, $PAGE_ORIGIN); ?>
+
+<?php endif; ?>
+
+    </div>
+</li>

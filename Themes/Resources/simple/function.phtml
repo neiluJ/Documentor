@@ -1,0 +1,45 @@
+<li class="<?php echo $function->getVisibility(); ?>">
+    <h5><a name="method-<?php echo strtolower($function->getShortName()); ?>"></a>
+        <!-- (@return) -->
+        <?php if($function->isAbstract()): ?>abstract <?php endif; ?>
+        <span style="width: 70px;color:#666;display:inline-block;"><?php echo $function->getVisibility(); ?></span>
+        <span style="font-weight:bold"><?php echo $function->getShortName(); ?></span>(<?php include __DIR__ .'/func_signature.phtml'; ?>)
+        <?php if($function->isStatic()): ?><span class="extra">static</span><?php endif; ?>
+        <?php if($function->isFinal()): ?><span class="extra">final</span><?php endif; ?>
+    </h5>
+
+    <div class="contents">
+        <?php if ($function->getDocComment() !== null): ?>
+        <?php echo strip_tags($function->getDocComment()->getComment()); ?>
+        <?php endif; ?>
+
+        <?php
+        $params = $function->getParameters();
+        $doc = $function->getDocComment();
+
+        $paramsTags = (isset($doc) ? $doc->getTags('param') : array());
+        $returnTag = (isset($doc) ? $doc->getFirstTag('return') : null);
+        ?>
+        <?php if(count($params)): ?>
+        <h4>Parameters</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach($params as $parameter): ?>
+                <tr>
+                    <td><strong>$<?php echo $parameter->getName() ?></strong> <?php if($parameter->isOptional()): ?><span style="font-style: italic; color: #666;">optional</span><?php endif; ?></td>
+                    <td><a href="#">?</a></td>
+                    <td><?php echo (isset($paramsTags[$parameter->getPosition()]) ? $paramsTags[$parameter->getPosition()]->getDescription() : "*no description*"); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+    </div>
+</li>
